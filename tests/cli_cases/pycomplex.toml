@@ -1,0 +1,7 @@
+file_path = "src/help/pysample.py"
+
+commands = [ "d::--tests/add|mul|show|do_::o", "imports::os", "more::Path", "less::show_history", "invert", "invert", "xxx", "explain"]
+
+
+wanted=["class Calculator:","Path","def multiply(","def add(","sys"]
+unwanted=["show_history"]

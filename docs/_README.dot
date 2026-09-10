@@ -1,0 +1,27 @@
+digraph G {
+
+    /* this is used by graphviz's dot to generate the SVG */
+    node [shape=box fontcolor=black align="LEFT"];
+    "gen" [label="generate_mdbook.sh\n(optional regex filter to limit topics)\l"];
+
+    "glob" [label="glob src/help/*.md (loads topics)"];
+
+    "filter" [label="loop on topics filtered by regex passed in"];
+
+    "help" [label="call `rxedit --help <topic>`"];
+    "save" [label="help output is saved to dogfooding/temp"];
+    "rxedit" [label="use rxedit itself to change `topic` to mdBook links"];
+    "macros" [label="dogfooding/macros holds tranformation macros,\n which can be topic-specific"];
+    "pyformat" [label="postformat.py - formats tables in the .md files"];
+    "copy" [label="copy generated files to docs/src"];
+
+    gen -> glob;
+    gen -> filter;
+    filter -> help;
+    help -> save;
+    filter -> rxedit;
+    rxedit -> macros;
+    filter -> pyformat;
+    pyformat -> copy;
+
+}

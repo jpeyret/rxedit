@@ -1,0 +1,40 @@
+# these commands are used to modify
+# from `<topic>` in the rxedit --help <topic> output
+# to mdbook [`<topic>`][./<path_to_topic>.md] link
+# as the topic will have been hidden in its own file, it won't self-reference
+
+change::`all`::[`all`]({{commands}}/all.md)
+change::`more`::[`more`]({{commands}}/more.md)
+change::`less`::[`less`]({{commands}}/less.md)
+change::`invert`::[`invert`]({{commands}}/invert.md)
+change::`lines`::[`lines`]({{commands}}/lines.md)
+change::`and`::[`and`]({{commands}}/and.md)
+change::`delete`::[`delete`]({{commands}}/delete.md)
+change::`change`::[`change`]({{commands}}/change.md)
+change::`prepend`::[`prepend`]({{commands}}/prepend.md)
+change::`append`::[`append`]({{commands}}/append.md)
+
+change::`declarations`::[`declarations`]({{commands}}/declarations.md)
+change::`imports`::[`imports`]({{commands}}/imports.md)
+change::`chaining`::[chaining]({{root}}/chaining.md)
+change::`config`::[config]({{root}}/config.md)
+change::`explain`::[`explain`]({{commands}}/explain.md)
+change::`flags`::[flags]({{root}}/flags.md)
+
+
+change::`macro`::[`macro`]({{commands}}/macro.md)
+
+change::`languages`::[`languages`]({{root}}/languages.md)
+
+change::`shortcodes`::[`shortcodes`]({{root}}/shortcodes.md)
+
+change::`noop`::[`noop`]({{commands}}/noop.md)
+
+change::`sample`::[`sample`]({{root}}/sample.md)
+
+change::`user_messages`::[error codes]({{root}}/user_messages.md)
+
+change::SEE ALSO --help for::SEE ALSO::
+
+#change::`xxx`::[`xxx`]({{commands}}/xxx.md)
+#use this as a template:

@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "src"
+		}
+	],
+	"settings": {
+		"chat.tools.terminal.autoApprove": {
+			"cargo check": true,
+			"cargo build": true,
+			"./target/debug/xliedit": true,
+			"cargo test": true
+		}
+	}
+}

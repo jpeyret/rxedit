@@ -1,0 +1,7 @@
+file_path = "src/help/pysample.py"
+
+commands = [ "--help"]
+
+
+wanted=[]
+unwanted=[]

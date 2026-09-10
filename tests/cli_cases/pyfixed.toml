@@ -1,0 +1,7 @@
+file_path = "src/help/pysample.py"
+
+commands = [ "d::i--w::F", "d::::wt=c", "less::__::F"]
+
+
+wanted=["class Calculator:","do_init","def multiply("]
+unwanted=["show_history","__init__"]

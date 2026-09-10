@@ -1,0 +1,7 @@
+file_path = "src/help/pysample.py"
+
+commands = [ "macro::regression_tests/samples/showpychatty.rxi"]
+
+
+wanted=["print"]
+unwanted=[]

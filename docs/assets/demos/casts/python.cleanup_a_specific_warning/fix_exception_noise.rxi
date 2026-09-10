@@ -1,0 +1,12 @@
+
+#show except ... as e: which ruff flags as unused F841
+more::^ *except (\({0,1}.+\){0,1}) as e~~colon.
+
+#hide it if has a `# noqa ` set already...
+less::#.* *noqa
+
+#Keep the except and the exception clause in regex named group $1 but change variable `e` to `_e` which ruff will ignore
+#Note: `~~colon.` is the shortcode for `:` because `::` is the field separator for rxedit
+change::except (\({0,1}.+\){0,1}) as e~~colon.::except $1 as _e:
+
+

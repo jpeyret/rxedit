@@ -1,0 +1,4 @@
+file_path = "src/help/sample.rs"
+commands = ["d::fixture_signature_with_colon_colon_in_body"]
+wanted = ["fn fixture_signature_with_colon_colon_in_body"]
+unwanted = ["fn make_message"]

@@ -1,0 +1,9 @@
+Workflow Help
+
+1) Start with broad match commands to reveal relevant lines.
+2) Narrow progressively using additional commands.
+3) Use -f / -F to compose command sequences from files.
+4) Add -n for line numbers and -s for visual spacing.
+5) Use -o or -O to write results.
+
+(more workflow documentation coming soon)

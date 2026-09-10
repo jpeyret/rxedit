@@ -1,0 +1,5 @@
+Use 0-based indexing for all internal computation, storage, and hashtree math. This includes parsed declaration metadata, vector positions, visible-line bookkeeping, and any lookup keyed by source position inside the runtime model. In other words, if the value is being used as an index into a Rust Vec, HashMap, or internal range structure, it should be zero-based.
+
+Use 1-based indexing only at explicit user-facing boundaries. The project specifically treats source line numbers as 1-based when printing with the -n flag, when interpreting CLines commands, and when processing wl=nn. selectors. These are human-oriented entry points where the user expects natural line numbers, not machine indexes. Once those inputs are translated into internal coordinates, the rest of the system should immediately convert back to zero-based form and stay there for all downstream logic.
+
+This distinction matters because mixing the two conventions causes off-by-one errors that look like declaration/visibility bugs even when the parser is otherwise correct. The rule of thumb is simple: internal math stays 0-based; human-facing display and selectors may be 1-based at the boundary only.

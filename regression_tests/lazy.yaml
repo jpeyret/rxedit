@@ -1,0 +1,365 @@
+Test_Mainrs_Declare:
+  file_path: $diroisamples/sample.rs
+  commands:
+    - declarations
+
+Test_Mainrs_DeclareNumbers:
+  file_path: $diroisamples/sample.rs
+  commands:
+    - declarations
+    - "-n"
+
+Test_Mainrs_Printdebugs:
+  file_path: $diroisamples/main_w_debug.rs
+  commands:
+    - "d::"
+    - "m::print!~~o.debug!"
+    - -G
+
+Test_PyViewManagerDescrA5:
+  file_path: $diroisamples/viewmanager.py
+  commands:
+    - "d::manager::iA5"
+
+Test_PyViewManagerMixBody:
+  file_path: $diroisamples/viewmanager.py
+  commands:
+    - "d::Mix::b"
+
+Test_PySampleCAnd:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d"
+    - "and::add"
+
+Test_PySampleCAndAfter2:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d"
+    - "and::add::A2"
+
+Test_BadPySampleDeclareOr:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - 'd::add|show_'
+
+Test_DeclarationMultiLine:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - 'd::multi'
+
+Test_DeclarationBodyOwner:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - 'd::__init__::bo'
+
+Test_DeclarationAfterBefore:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - 'd::__init__::A1B2'
+
+
+Test_RustSampleDeclareImpl:
+    # """ missing impl from declarations"""
+    file_path:  $diroisamples/sample.rs
+    commands:
+      - "d::"
+
+Test_DeclarationSetKey:
+    # """ set key then less on wk"""
+  file_path: $diroisamples/pysample.py
+  commands:
+    - 'd::init::sk=fo.o'
+    - 'd::mul::sk=fo.'
+    - d
+    - less::::wk=fo.
+
+Test_DeclarationSetKeyEnd:
+    # """ set key then less on wk"""
+  file_path: $diroisamples/pysample.py
+  commands:
+    - 'd::init::osk=fo'
+    - 'd::mul::sk=fo'
+    - d
+    - less::::wk=fo
+
+
+
+Test_MoreShowOwner:
+  # """x pysample.py m::append::o"""
+  file_path: $diroisamples/pysample.py
+  commands:
+    - m::append::o
+
+Test_Declare_ParentPath:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d::Cal/init"
+
+Test_Declare_Parented:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d::/init"
+
+Test_Declare_ChildrenOf:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d::Cal/"
+
+Test_Declare_Negation:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d::i--__"
+
+Test_Declare_NegationOnly:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d::--init"
+
+Test_Declare_ParentPathNegationCommas:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d::Cal,Bar--Zoom/init"
+
+Test_Declare_FunctionOnlys:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d::ul::wt=f."
+
+Test_Declare_FunctionClasses:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d::ul::wt=fc."
+
+Test_Head3:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "more::::wl=-3."
+
+Test_From30:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "more::::wl=30-."
+
+Test_Declare_ParentNegation_AllowStandalones:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d::--Cal/init"  # a definition without a parent should still match
+
+Test_Lines_TwoToFive:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "lines::2-5::"  # skip line 1, then display up to line 5
+
+Test_InvalidRegex:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "all::{"  # regexi error
+
+Test_Declaration_NameNegation:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d::--init"  # return all declaration but *init*
+
+Test_Prepend_ReturnNotIndented:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - d::
+    - m::return
+    - 'prepend::return::#heading back::'
+    - all
+
+Test_Append_ReturnIndented:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - d
+    - m::return
+    - 'append::return::#unreachable :-(::I'
+    - all
+
+Test_Prepend_InvisiblesNoEffect:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - d
+    - 'prepend::return::#heading back::'
+    - all
+
+Test_NameRegex:
+  file_path: $diroisamples/providers.py
+  commands:
+    - 'd::Url..Pro|Pro..Url'
+
+Test_NameRegexNegate:
+  file_path: $diroisamples/providers.py
+  commands:
+    - 'd::Url..Pro|Pro..Url--_'
+
+Test_NameRegexNegateX:
+  file_path: $diroisamples/providers.py
+  commands:
+    - 'd::Url..Pro|Pro..Url!^_'
+
+Test_Classnames:
+  file_path: $diroisamples/providers.py
+  commands:
+    - "d::Url::wt=c"
+
+Test_Classnames_BadNegate:
+  file_path: $diroisamples/providers.py
+  commands:
+    - "d::-_::wt=c" # should be empty
+
+
+Test_Classnames_Negate:
+  file_path: $diroisamples/providers.py
+  commands:
+    - "d::--_::wt=c"
+
+Test_Classnames_NegateX:
+  file_path: $diroisamples/providers.py
+  commands:
+    - "d::!_::wt=c"
+
+Test_Classnames_CommaOrsNoPrivate:
+  file_path: $diroisamples/providers.py
+  commands:
+    - d::Url,rec--^_::iwt=c.g
+    - explain
+
+
+Test_Inits_Parentname:
+  file_path: $diroisamples/providers.py
+  commands:
+    - "d::Url/__init__"
+
+
+
+Test_Inits_ParentnameNegate:
+  file_path: $diroisamples/providers.py
+  commands:
+    - "d::--Url/__init__"
+
+Test_Inits_ParentnameNegateX:
+  file_path: $diroisamples/providers.py
+  commands:
+    - "d::!Url/__init__"
+
+Test_Inits_ParentnameYesNegateX:
+  file_path: $diroisamples/providers.py
+  commands:
+    - "d::Url!^_/__init__"  # should skip _InternalProviderUrlSpec
+
+
+
+Test_Inits_ParentnameBadNegate:
+  file_path: $diroisamples/providers.py
+  commands:
+    - "d::-Url/__init__"  # should be empty
+
+Test_Declarations_FixedInsentive:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "declarations::caL::Fi"
+
+Test_More_FixedInsentive:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "more::caL::Fi"
+
+Test_Change_IOOnce:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d"
+    - "c::i::o"
+
+Test_Change_IOAll:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "d"
+    - "c::i::oa"
+
+Test_Change_LineFeed:
+  file_path: $diroisamples/pysample.py
+  commands:
+    # x pysample.py 'all::Display calculation history' 'c::Display calculation history::Display\ncalculation history::' all::Display::A2
+    - "all::Display calculation history"
+    - 'c::Display calculation history::Display\ncalculation history::'
+    - all::Display::A2
+
+Test_Change_NoLineFeed:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "all::Display calculation history"
+    - 'c::Display calculation history::Display\ncalculation history::r'
+    - all::Display::A2
+
+
+
+Test_Shortcodes_EnvYesCommNo:
+  #rxedit_grep_shortcodes=1 x $pyoisample 'm::d~~pl.::G'
+  file_path: $diroisamples/pysample.py
+  env:
+    rxedit_grep_shortcodes: 1
+  commands:
+    - "m::d~~pl.::G"
+
+Test_Shortcodes_EnvYesCommYes:
+  #rxedit_grep_shortcodes=1 x $pyoisample 'm::d~~pl.::g'
+  file_path: $diroisamples/pysample.py
+  env:
+    rxedit_grep_shortcodes: 1
+  commands:
+    - "m::d~~pl.::g"
+
+
+Test_Shortcodes_EnvNoCommYes:
+  file_path: $diroisamples/pysample.py
+  env:
+    rxedit_grep_shortcodes: 0
+  commands:
+    - "m::d~~pl.::g"
+
+Test_Shortcodes_EnvYes:
+  #rxedit_grep_shortcodes=1 x $pyoisample 'm::d~~pl.::G'
+  file_path: $diroisamples/pysample.py
+  env:
+    rxedit_grep_shortcodes: 1
+  commands:
+    - "m::d~~pl."
+
+Test_Shortcodes_EnvNo:
+  #rxedit_grep_shortcodes= x $pyoisample 'm::d~~pl.'
+  file_path: $diroisamples/pysample.py
+  env:
+    rxedit_grep_shortcodes: 0
+  commands:
+    - "m::d~~pl."
+
+
+Test_Zsh_Declarations:
+  file_path: $diroisamples/sample.sh
+  commands:
+    - "d::"
+
+Test_Js_Declarations:
+  file_path: $diroisamples/sample.js
+  commands:
+    - "d::"
+
+Test_DeleteBlanksToo:
+  file_path: $diroisamples/minisample.rs
+  commands:
+    #select the body of mod {tests}
+    - "d::tests::bwt=m"
+    # delete everything visible
+    - delete
+    # the only blank space expected is that preceding mod tests
+    - all
+
+Test_DeleteBlanksTooStopAtDelete:
+  file_path: $diroisamples/minisample.rs
+  commands:
+    #select the body of mod {tests}
+    - "d::tests::bwt=m"
+    # delete everything visible, so no blank lines should be left
+    - delete

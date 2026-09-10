@@ -1,0 +1,148 @@
+
+[commandflags.NAME_NEGATIVE_SPLITTER]
+value = "--|!"
+example = "d::Url!^_ or d::Url--^_ both mean matches `Url` but does not start with `_`"
+
+[commandflags.CASE_INSENSITIVE]
+value = "i"
+example = "::i"
+
+[commandflags.CHANGE_ALL]
+value = "a"
+example = "::a"
+
+[commandflags.AFTER_CONTEXT]
+value = "A(\\d+)"
+example = "::A12"
+
+[commandflags.BEFORE_CONTEXT]
+value = "B(\\d+)"
+example = "::B5"
+
+[commandflags.CONTEXT]
+value = "C(\\d+)"
+example = "::C5"
+
+[commandflags.SETKEY]
+value = "sk=([a-z]+)(?:\\.|$)"
+example = "::sk=important."
+
+[commandflags.WHEREKEY]
+value = "wk=([a-z]+)(?:\\.|$)"
+example = "::wk=mykey."
+
+[commandflags.WHERETYPE]
+value = "wt=([a-z]+)(?:\\.|$)"
+example = "::wt=f. (shows only functions)"
+
+[commandflags.WHERE_LINENUM]
+value = "wl=([0-9,-]+)(?:\\.|$)"
+example = "::wl=-5,22,99."
+
+[commandflags.FIXED_STRING]
+value = "F"
+example = "::F"
+
+
+[commandflags.USER_CONFIRM]
+value = "u"
+example = "::u"
+
+
+[commandflags.USE_GREP_SHORTCODES]
+value = "g"
+example = "::g"
+
+[commandflags.NO_GREP_SHORTCODES]
+value = "G"
+example = "::G"
+
+[commandflags.INDENT_KEEP]
+value = "I"
+example = "::I"
+
+[commandflags.RAW_STRING]
+value = "r"
+example = "::r"
+
+
+[commandflags.SHOW_BODY]
+value = "b"
+example = "d::::b"
+
+[commandflags.SHOW_OWNER]
+value = "o"
+example = "::o"
+
+[commandflags.NAME_NEGATION_SPLITTER]
+value = "--"
+example = "keep_something--skip_stuff"
+
+
+
+[grep_shortcodes.WILDCARD]
+macrocode = ".."
+expansion = ".*"
+
+[grep_shortcodes.SPACES]
+macrocode = "~~s."
+expansion = " +"
+
+[grep_shortcodes.OR]
+macrocode = "~~o."
+expansion = "|"
+
+[grep_shortcodes.OR_COMMA]
+macrocode = ","
+expansion = "|"
+
+[grep_shortcodes.QUOTES]
+macrocode = "~~q."
+expansion = "['\"]"
+
+[grep_shortcodes.LEFT_PARENTHESIS]
+macrocode = "~~pl."
+expansion = "\\("
+
+[grep_shortcodes.RIGHT_PARENTHESIS]
+macrocode = "~~pr."
+expansion = "\\)"
+
+[grep_shortcodes.LESS_THAN]
+macrocode = "~~lt."
+expansion = "<"
+
+[grep_shortcodes.FIELD_SEPARATOR]
+macrocode = "~~sep."
+expansion = "::"
+
+[grep_shortcodes.COLON]
+macrocode = "~~colon."
+expansion = ":"
+
+
+[help]
+topics_help = [
+	"all",
+	"and",
+	"append",
+	"chaining",
+	"change",
+	"config",
+	"declarations",
+	"delete",
+	"explain",
+	"flags",
+	"imports",
+	"invert",
+	"languages",
+	"less",
+	"lines",
+	"macro",
+	"more",
+	"noop",
+	"prepend",
+	"sample",
+	"shortcodes",
+	"user_messages",
+]

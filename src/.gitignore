@@ -1,0 +1,9 @@
+*.txt
+*.out
+*.py
+y.lazy.yaml
+*.bad
+*.good
+*.0
+*.1
+*.2

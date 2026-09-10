@@ -1,0 +1,16 @@
+# this deletes all "del"  keys from an indent-formatted json.
+
+#show all "del" entries and set_key them to `todelete`
+all::^ *"del"::sk=todelete 
+
+#we can delete the ones with a trailing comma
+delete::,$:: 
+
+#now show the lines before "del" keys as well
+all::::B1wk=todelete
+
+#delete the targets
+delete::::wk=todelete
+
+#strip off the trailing comma
+change::,$::

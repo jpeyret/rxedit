@@ -1,0 +1,24 @@
+# bring into visibility all the lines we will want to modify
+# subsequently `$commless` in generate_mkbook.sh will hide the what we don't want to change
+
+more::SEE ALSO --help for::
+more::`all`::
+more::`more`::
+more::`less`::
+more::`invert`::
+more::`lines`::
+more::`and`::
+more::`delete`::
+more::`change`::
+more::`prepend`::
+more::`append`::
+more::`declarations`::
+more::`imports`::
+more::`chaining`::
+more::`config`::
+more::`explain`::
+more::`flags`::
+more::`macro`::
+more::`languages`
+more::`shortcodes`
+more::`noop`

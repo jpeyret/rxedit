@@ -1,0 +1,9 @@
+# this is to wrap the clap `--help` message with ``` ... ```
+
+#start of clap Usage message - ought to be stable
+m::Usage: rxedit
+prepend::Usage::```
+
+#end of clap message - may change later
+more::load config from the given file::
+append::load config from the given file::```

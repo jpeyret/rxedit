@@ -1,0 +1,5 @@
+target/*
+copilot/*
+.vscode/*
+work/
+uv.lock

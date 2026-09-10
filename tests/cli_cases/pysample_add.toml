@@ -1,0 +1,4 @@
+file_path = "src/help/pysample.py"
+commands = ["d::add"]
+wanted = ["def add", "a: int, b: int"]
+unwanted = ["show_history"]

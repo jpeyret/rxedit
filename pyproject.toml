@@ -1,0 +1,15 @@
+[project]
+name = "rxedit"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "click>=8.4.2",
+]
+
+[dependency-groups]
+dev = [
+    "lazy-regression-tests",
+]
+
+[tool.uv.sources]
+lazy-regression-tests = { path = "/Users/jluc/kds2/mygithub/lazy-regression-tests/lazy_regression_tests" }

@@ -1,0 +1,9 @@
+# wrap the sample code files with ```
+
+
+m::Sample
+append::Sample::```
+prepend::Sample Python::```
+
+all::calc.show_history()::
+append::::```::

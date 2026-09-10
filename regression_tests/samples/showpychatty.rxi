@@ -1,0 +1,7 @@
+#things that we consider "noisy"
+m::^ *(print|debug|pp|ppp|rin|rindebug|debuglog)\(::sk=chatty
+less::# *debugging::wk=chatty
+more::log\.info
+more::log\(..level="w
+#hide commented-out stuff
+less::^ *#

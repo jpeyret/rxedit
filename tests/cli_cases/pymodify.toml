@@ -1,0 +1,6 @@
+file_path = "src/help/pysample.py"
+
+commands = [ "lines::1-2,3,4", "all::import", "delete::import", "invert", "c::Calculator::Abacus::", "all"]
+
+wanted=["Abacus"]
+unwanted=["Calcular","import"]

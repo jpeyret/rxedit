@@ -1,0 +1,42 @@
+[package]
+name = "rxedit"
+version = "0.1.1"
+edition = "2024"
+license = "MIT"
+description = "A folding batch editor for source code discovery and editing, XEDIT/sed/grep-inspired, tree-sitter-aware"
+# documentation = "https://..."
+repository = "https://github.com/jpeyret/rxedit"
+homepage = "https://github.com/jpeyret/rxedit"   # or mdBook Pages URL
+keywords = ["cli", "editor", "sed", "grep", "tree-sitter"]   # max 5
+categories = [
+    "command-line-utilities",
+    "development-tools",
+    "text-processing",
+]
+readme = "README.md"
+
+
+
+[dependencies]
+enum_dispatch = "0.3"
+clap = { version = "4.5", features = ["derive","wrap_help"] }
+regex = "1"
+log = "0.4"
+env_logger = "0.11"
+once_cell = "1.21.4"
+tree-sitter = "0.26.8"
+tree-sitter-rust = "0.24.2"
+tree-sitter-python = "0.25.0"
+sha2 = "0.11.0"
+serde = { version = "1", features = ["derive", "serde_derive"] }
+serde_json = "1"
+toml = "0.8"
+inquire = "0.9.4"
+phf = { version = "0.13.1", features = ["macros"] }
+minijinja = "2.20.0"
+unescaper = "0.2.0"
+abi_stable = "0.11"
+libloading = "0.8"
+
+[lints.clippy]
+enum_variant_names = "allow"
