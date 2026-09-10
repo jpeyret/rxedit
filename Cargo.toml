@@ -6,7 +6,7 @@ license = "MIT"
 description = "A folding batch editor for source code discovery and editing, XEDIT/sed/grep-inspired, tree-sitter-aware"
 # documentation = "https://..."
 repository = "https://github.com/jpeyret/rxedit"
-homepage = "https://github.com/jpeyret/rxedit"   # or mdBook Pages URL
+homepage = "https://jpeyret.github.io/rxedit/"
 keywords = ["cli", "editor", "sed", "grep", "tree-sitter"]   # max 5
 categories = [
     "command-line-utilities",
