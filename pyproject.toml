@@ -11,5 +11,3 @@ dev = [
     "lazy-regression-tests",
 ]
 
-[tool.uv.sources]
-lazy-regression-tests = { path = "/Users/jluc/kds2/mygithub/lazy-regression-tests/lazy_regression_tests" }
