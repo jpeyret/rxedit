@@ -4,9 +4,11 @@ version = "0.1.1"
 edition = "2024"
 license = "MIT"
 description = "A folding batch editor for source code discovery and editing, XEDIT/sed/grep-inspired, tree-sitter-aware"
-# documentation = "https://..."
 repository = "https://github.com/jpeyret/rxedit"
-homepage = "https://jpeyret.github.io/rxedit/"
+documentation = "https://jpeyret.github.io/rxedit/"
+homepage = "https://github.com/jpeyret/rxedit"
+
+
 keywords = ["cli", "editor", "sed", "grep", "tree-sitter"]   # max 5
 categories = [
     "command-line-utilities",
