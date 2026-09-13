@@ -10,7 +10,7 @@ Edits are not persisted until requested by the user.
 Example:  show all lines containing `TODO` and 2 lines afterwards, using the `A2` flag (similar to a `grep -A 2`)
 , hide "low priority" lines and show case-insentitive "urgent":
 
-  <br>`rxedit myfile.txt all::TODO::A2 'less::low priority' more::urgent::i`
+  <br><br>`rxedit myfile.txt all::TODO::A2 'less::low priority' more::urgent::i`
 
 #### Visibility commands:
 - `all`          show only matching lines
@@ -107,27 +107,27 @@ Commands use:
 
   Show all lines containing `TODO` and 2 lines afterwards, using the `A2` flag
   Equivalent to `grep -A 2 TODO myfile.txt`
-  <br>`rxedit myfile.txt all::TODO::A2`
+  <br><br>`rxedit myfile.txt all::TODO::A2`
 
   Show all lines with `error`, hide those with `log`, also show those with `print` in upper or lower case.
   `explain` prints how rxedit interpreted the commands out to stderr.
-    <br>`rxedit myfile.txt -n a::error:: less::log more::print::i explain`
+    <br><br>`rxedit myfile.txt -n a::error:: less::log more::print::i explain`
 
   Show all fn, trait... with a name matching regex `m[ay]` which are not under a parent `tests`
   as in `mod tests {...}`).  The trailing `::b` is the flag that shows those functions' bodies.
   The quotes are necessary to avoid shell interactions.
-    <br>`rxedit main.rs 'd::-tests/m[ay]::b'`
+    <br><br>`rxedit main.rs 'd::-tests/m[ay]::b'`
 
   Shows all lines with `dbg!` or `print` and deletes visible lines matching `dbg!`.
   The `-O` flag modifies the file in place, use it after getting the command sequence right.
-    <br>`rxedit formatters.rs 'm::dbg!|print' 'delete::dbg!' -O`
+    <br><br>`rxedit formatters.rs 'm::dbg!|print' 'delete::dbg!' -O`
 
   Shows all lines with `dbg!` and uses `change` via regex group names to comment them out.
   there is no -O yet, so you can fine tune what you are commenting out first.
-    <br>`rxedit formatters.rs 'm::dbg!' 'change::([\s]*)([^\s].*$)::$1//$2'`
+    <br><br>`rxedit formatters.rs 'm::dbg!' 'change::([\s]*)([^\s].*$)::$1//$2'`
 
   Uses a `macro::` file to show user-determined indicators of "chattiness" in Python
-    <br>`rxedit pysample.py macro::./showpychatty.rxi`
+    <br><br>`rxedit pysample.py macro::./showpychatty.rxi`
 
     showpychatty.rxi contents:
 
@@ -139,11 +139,11 @@ Commands use:
     ````
 
   Same as above, after user has hidden lines 32 and 35 that they want to keep after all, delete and overwrite the file
-    <br>`rxedit pysample.py macro::./showpychatty.rxi less::::ln=32,35 delete -O`
+    <br><br>`rxedit pysample.py macro::./showpychatty.rxi less::::ln=32,35 delete -O`
 
   Extract all the active `log` calls to a report file.  Note the use of the `invert` before `delete`:  first we
   identify all the lines we want to extract, then we invert the visibility in order to delete all those we don't want.
-    <br>`rxedit main.py 'm::log\.[a-z]+\('  'less:: *//' invert delete -o logging.rpt`
+    <br><br>`rxedit main.py 'm::log\.[a-z]+\('  'less:: *//' invert delete -o logging.rpt`
 
 
 ### Keep in mind:
@@ -197,7 +197,7 @@ Examples:
 
 ### Final Example with sample output:
 
-<br>`rxedit pysample.py declarations d::add::b less::__init__ more::print less::history::i`
+<br><br>`rxedit pysample.py declarations d::add::b less::__init__ more::print less::history::i`
 
 ````
 000005 def do_init(func):

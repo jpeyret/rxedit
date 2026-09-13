@@ -11,5 +11,4 @@ append::load config from the given file::```
 
 #we also want to make sure that the `rxedit ` sample lines stand out...
 all::^ *`rxedit::B1
-change::`rxedit::<br>`rxedit::
-
+change::`rxedit::<br><br>`rxedit::
