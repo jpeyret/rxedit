@@ -46,7 +46,8 @@ impl CommandActions for CDelete {
             None
         };
 
-        // Filter out visible lines that match the pattern
+        // Filter out visible lines that match the pattern.
+        // remember:  lines not kept are essentially deleted
         lines
             .into_iter()
             .filter(|line_status| {

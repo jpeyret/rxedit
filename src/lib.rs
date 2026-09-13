@@ -70,6 +70,7 @@ pub(crate) fn new_searcher(
 ) -> Result<common::SearchSeed, regex::Error> {
     let (qualifier, _unconsumed) = GrepCommandQualifier::build_with_flags(flags, allowed_flags);
     let pattern = preformat(arg0, &qualifier, grep_shortcodes);
+
     let skip_pattern = skip_pattern.map(|value| preformat(value, &qualifier, grep_shortcodes));
 
     let searcher = if qualifier.fixed_string {
@@ -398,12 +399,18 @@ fn append_generic_command_telemetry(command: &Command, arg: &str, searcher_in: O
     append_telemetry(tmp);
 }
 
+
+static DEFAULT_ON_EMPTY_PATTERN: &str =  "";
+
 /// Parses a single command string into a typed command value.
 pub fn make_command(arg: &str) -> Command {
     // build a Command from string with a separator (current com::payload or com::payload::payload..)
+    // DEFAULT_ON_EMPTY_PATTERN is what you get when the user doesn't enter a pattern.  it should match everything
+    // i.e. `all` or `all::::` should both show everything, much like a `cat`
 
     let segments = split_command_fields(arg);
     let segment_refs: Vec<&str> = segments.iter().map(|s| s.as_str()).collect();
+
     let command = match segment_refs.as_slice() {
         [prefix, arg0, flag] if matches!(*prefix, command_prefix::AND | command_prefix::AND1) => {
             commands::search::from_search(CommandVariant::CAnd, arg0, flag, arg)
@@ -445,7 +452,7 @@ pub fn make_command(arg: &str) -> Command {
             commands::search::from_search(CommandVariant::CDelete, arg0, "", arg)
         }
         [command_prefix::DELETE] | [command_prefix::DELETE1] => {
-            commands::search::from_search(CommandVariant::CDelete, ".", "", arg)
+            commands::search::from_search(CommandVariant::CDelete, DEFAULT_ON_EMPTY_PATTERN, "", arg)
         }
         [command_prefix::ALL, arg0, flag] | [command_prefix::ALL1, arg0, flag] => {
             commands::search::from_search(CommandVariant::CAll, arg0, flag, arg)
@@ -454,10 +461,10 @@ pub fn make_command(arg: &str) -> Command {
             commands::search::from_search(CommandVariant::CAll, arg0, "", arg)
         }
         [command_prefix::ALL] | [command_prefix::ALL1] => {
-            commands::search::from_search(CommandVariant::CAll, ".", "", arg)
+            commands::search::from_search(CommandVariant::CAll, DEFAULT_ON_EMPTY_PATTERN, "", arg)
         }
         [command_prefix::OUTPUT] | [command_prefix::OUTPUT1] => {
-            commands::search::from_search(CommandVariant::CAll, ".", "N", arg)
+            commands::search::from_search(CommandVariant::CAll, DEFAULT_ON_EMPTY_PATTERN, "N", arg)
         }
         [prefix, pattern, replace_with, flags]
             if matches!(*prefix, command_prefix::CHANGE | command_prefix::CHANGE1) =>
@@ -498,7 +505,7 @@ pub fn make_command(arg: &str) -> Command {
             commands::imports::from_import(pattern, "", arg)
         }
         [command_prefix::IMPORTS] | [command_prefix::IMPORTS1] => {
-            commands::imports::from_import(".", "", arg)
+            commands::imports::from_import(DEFAULT_ON_EMPTY_PATTERN, "", arg)
         }
         [prefix, pattern, content, flags]
             if matches!(*prefix, command_prefix::PREPEND | command_prefix::PREPEND1) =>

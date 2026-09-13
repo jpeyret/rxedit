@@ -574,10 +574,12 @@ class Test_Prepend_ReturnNotIndented(Best_):
 class Test_Append_ReturnIndented(Best_):
     ...
 class Test_Prepend_InvisiblesNoEffect(Best_):
-    ...
+    "..."
 
 class Test_NameRegex(Best_):
-    ...
+    """dont fix this to make it work, the whole point is that it should not
+    because it's missing visible targets
+    """
 
 class Test_NameRegexNegate(Best_):
     ...

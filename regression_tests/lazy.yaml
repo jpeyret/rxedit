@@ -167,7 +167,7 @@ Test_Prepend_ReturnNotIndented:
     - d::
     - m::return
     - 'prepend::return::#heading back::'
-    - all
+    - all::return::C2
 
 Test_Append_ReturnIndented:
   file_path: $diroisamples/pysample.py
@@ -175,14 +175,16 @@ Test_Append_ReturnIndented:
     - d
     - m::return
     - 'append::return::#unreachable :-(::I'
-    - all
+    - all::return::C2
 
 Test_Prepend_InvisiblesNoEffect:
+  # dont fix this to make it work, the whole point is that it should not
+  # because it's missing visible targets
   file_path: $diroisamples/pysample.py
   commands:
     - d
     - 'prepend::return::#heading back::'
-    - all
+    - all::return::C2
 
 Test_NameRegex:
   file_path: $diroisamples/providers.py

@@ -163,6 +163,7 @@ pub(crate) fn from_search(
         CommandVariant::CAnd => c::commandflags::and_flags(),
         _ => c::commandflags::searchflags(),
     };
+
     let result = new_searcher(
         pattern,
         None,
