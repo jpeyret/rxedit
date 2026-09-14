@@ -12,14 +12,16 @@ We welcome help with bug fixes, documentation improvements, and small feature wo
 
 - Suggestions for extra features.  Keep in mind the tension between that and presenting the user with an overcomplex API.
 
-- Suggestions for making the DSL more intuitive.  The config system is intended to allow user experimentation.
+- Suggestions for making the DSL more intuitive.  The config system is intended to allow for user experimentation.
+
+- Suggestions for improvement in the shared library mechanism, currently based on abi_stable v0.11.3.
 
 
 If you are unsure whether a change is a good fit, please open an issue or ask before investing a lot of time.  For example:
 
 - Significant architectural changes for the sake of performance.  Let's first make it right.
 
-- Large AI-driven PRs.  We expect to know your PR, what it is doing and how  And keep change scope as narrow as possible.
+- Large AI-driven PRs.  We expect you to know your PR, what it is doing and how  And keep change scope as narrow as possible.
 
 
 
@@ -39,6 +41,9 @@ If you are unsure whether a change is a good fit, please open an issue or ask be
    ```
 
 3. **Run the regression test suite**
+
+   (in the future, for now, lazy.py is not fully operational due to dependencies that are not published yet)
+
    ```bash
    /path/to/shellscripts/runpylazy.sh
    ```
@@ -68,7 +73,7 @@ Please include:
 
 ## Feature Requests
 
-Describe the use case and how it would benefit other users.
+Describe the use case and how it would benefit other users.  If applicable and possible, evaluate the impact on the command DSL.
 
 ## Pull Request Process
 
