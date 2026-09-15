@@ -14,6 +14,7 @@ pub fn get_constant_definition() -> CommandDefinition {
     CommandDefinition {
         name: command_prefix::MORE,
         mutates_line_text: false,
+        file_arg_policy: FileArgPolicy::No,
         flags: commandflags::searchflags(),
     }
 }

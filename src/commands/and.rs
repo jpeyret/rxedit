@@ -15,6 +15,7 @@ pub fn get_constant_definition() -> CommandDefinition {
     CommandDefinition {
         name: command_prefix::AND,
         mutates_line_text: false,
+        file_arg_policy: FileArgPolicy::No,
         flags: commandflags::and_flags(),
     }
 }

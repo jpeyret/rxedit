@@ -16,6 +16,7 @@ pub fn get_constant_definition() -> CommandDefinition {
     CommandDefinition {
         name: command_prefix::CHANGE,
         mutates_line_text: true,
+        file_arg_policy: FileArgPolicy::No,
         flags: commandflags::change_flags(),
     }
 }

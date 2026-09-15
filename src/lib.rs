@@ -40,7 +40,7 @@ use enum_dispatch::enum_dispatch;
 use regex::{Regex, RegexBuilder};
 use std::collections::HashMap;
 
-use crate::base::CommandDefinition;
+use crate::base::{CommandDefinition, FileArgPolicy};
 use crate::commands::search::{ContainsKeepSkip, ContainsSearcher, RegexKeepSkip, RegexSearcher};
 use crate::common::{GrepCommandQualifier, LineStatus, TelemetryEvent, append_telemetry};
 
@@ -313,6 +313,14 @@ impl Command {
     pub fn mutates_line_text(&self) -> bool {
         self.get_constant_definition().mutates_line_text
     }
+
+    /// Does this command consume a following file path argument?
+    pub fn accepts_file_arg(&self) -> bool {
+        matches!(
+            self.get_constant_definition().file_arg_policy,
+            FileArgPolicy::Yes
+        )
+    }
 }
 
 fn command_source_for_generic_telemetry(command: &Command) -> Option<&'static str> {
@@ -411,6 +419,11 @@ pub fn make_command(arg: &str) -> Command {
     let segments = split_command_fields(arg);
     let segment_refs: Vec<&str> = segments.iter().map(|s| s.as_str()).collect();
 
+    if *c::DEBUGGING {
+        eprintln!("segment_refs={:?}",segment_refs);
+    }
+
+
     let command = match segment_refs.as_slice() {
         [prefix, arg0, flag] if matches!(*prefix, command_prefix::AND | command_prefix::AND1) => {
             commands::search::from_search(CommandVariant::CAnd, arg0, flag, arg)
@@ -418,13 +431,20 @@ pub fn make_command(arg: &str) -> Command {
         [command_prefix::AND, arg0] | [command_prefix::AND1, arg0] => {
             commands::search::from_search(CommandVariant::CAnd, arg0, "", arg)
         }
+        [command_prefix::MACROS] => {
+            let noop = CNoop {
+                text: arg.to_string(),
+                message: "macro command requires a file path".to_string(),
+            };
+            append_telemetry(TelemetryEvent::NoopNotification {
+                payload: arg.to_string(),
+                received: arg.to_string(),
+                cause: "macro requires file path".to_string(),
+            });
+            Command::CNoop(noop)
+        }
         [command_prefix::LINES, arg0, flag] => {
             let (telemetry_event, command) = commands::lines::from_arg(arg, arg0, flag);
-            append_telemetry(telemetry_event);
-            return command;
-        }
-        [command_prefix::MACROS, arg0] => {
-            let (telemetry_event, command) = commands::macros::from_arg(arg, arg0);
             append_telemetry(telemetry_event);
             return command;
         }
@@ -601,42 +621,90 @@ fn preformat(
     }
 }
 
-// load commands from files pointed at by macro::<some path>
+fn command_file_arg_policy(arg: &str) -> FileArgPolicy {
+    if arg == command_prefix::MACROS {
+        FileArgPolicy::Yes
+    } else {
+        FileArgPolicy::No
+    }
+}
+
+fn fatal_bad_file_arg(command_name: &str, path: &str) -> ! {
+    eprintln!("{} {} is the problem due to a missing file.", command_name, path);
+    std::process::exit(1);
+}
+
+fn load_macro_file(path: &str) -> Result<Vec<String>, String> {
+    let commands = utilities::parse_commands_file(path)?;
+    let mut expanded = Vec::new();
+
+    for line in commands {
+        let first = line.split_whitespace().next().unwrap_or("");
+        if first.eq_ignore_ascii_case(command_prefix::MACROS) {
+            return Err(format!(
+                "nested macro command '{}' is not allowed in macro files",
+                line
+            ));
+        }
+        expanded.push(line);
+    }
+
+    Ok(expanded)
+}
+
+// load commands from files pointed at by dedicated macro + filepath arguments.
 fn expand_macros(args: &[String]) -> Vec<String> {
     let mut res = Vec::new();
-    for v in args {
-        if v.starts_with("macro::") {
-            res.push(v.to_string());
-            match v.split("::").collect::<Vec<_>>().as_slice() {
-                ["macro", path_] | ["macro", path_, _] => {
-                    match utilities::parse_commands_file(path_) {
-                        Ok(li_macro) => {
-                            // dbg!(&li_macro);
-                            for macro_ in li_macro {
-                                res.push(macro_);
-                            }
-                        }
-                        Err(e) => {
-                            eprintln!("error loading {}", e);
-                        }
-                    };
+    let mut index = 0;
+
+    while index < args.len() {
+        let current = &args[index];
+
+        if matches!(command_file_arg_policy(current), FileArgPolicy::Yes) {
+            if let Some(path) = args.get(index + 1).map(String::as_str) {
+                if !std::path::Path::new(path).is_file() {
+                    fatal_bad_file_arg(command_prefix::MACROS, path);
                 }
-                _ => {
-                    println!("unexpected format");
+
+                match load_macro_file(path) {
+                    Ok(entries) => {
+                        res.extend(entries);
+                    }
+                    Err(_) => {
+                        fatal_bad_file_arg(command_prefix::MACROS, path);
+                    }
                 }
+                index += 2;
+                continue;
             }
-        } else {
-            res.push(v.to_string());
         }
+
+        if current.starts_with("macro::") {
+            res.push(current.to_string());
+        } else {
+            res.push(current.to_string());
+        }
+        index += 1;
     }
-    // dbg!(&res);
+
     res
 }
 
 /// Converts command argument strings into executable commands.
 pub fn commands_factory(args: &[String]) -> Vec<Command> {
     let args = expand_macros(args);
-    args.iter().map(|arg| make_command(arg)).collect()
+    args.iter()
+        .map(|arg| {
+            if let Some(message) = arg.strip_prefix("__rxedit_macro_error__") {
+                Command::CNoop(CNoop {
+                    text: arg.to_string(),
+                    message: format!("macro file error: {}", message),
+                })
+            } else {
+                make_command(arg)
+            }
+        })
+        .collect()
 }
 
 #[cfg(test)]
@@ -897,6 +965,50 @@ mod tests {
 
         let cmd = make_command("app::foo::bar");
         assert!(matches!(cmd, Command::CInserter(_)));
+    }
+
+    #[test]
+    fn commands_factory_expands_separate_macro_file_argument() {
+        use crate::Command;
+        use crate::commands_factory;
+        use std::fs;
+
+        let dir = std::env::temp_dir().join(format!(
+            "rxedit_macro_{}_{}",
+            std::process::id(),
+            std::thread::current().name().unwrap_or("test")
+        ));
+        let _ = fs::create_dir_all(&dir);
+        let macro_path = dir.join("sample.rxi");
+        fs::write(&macro_path, "more::hello\n").unwrap();
+
+        let commands = commands_factory(&[
+            "macro".to_string(),
+            macro_path.to_string_lossy().to_string(),
+        ]);
+
+        assert!(matches!(commands.as_slice(), [Command::CMore(_)]));
+        let Command::CMore(cmore) = &commands[0] else {
+            panic!("expected CMore from macro file");
+        };
+        assert!(cmore.searcher.search("hello world"));
+
+        let _ = fs::remove_file(&macro_path);
+        let _ = fs::remove_dir(&dir);
+    }
+
+    #[test]
+    fn commands_factory_treats_legacy_macro_path_syntax_as_noop() {
+        use crate::Command;
+        use crate::commands_factory;
+
+        let commands = commands_factory(&[
+            "macro::/tmp/not-a-real-macro-file.rxi".to_string(),
+            "all".to_string(),
+        ]);
+
+        assert!(matches!(commands[0], Command::CNoop(_)));
+        assert!(matches!(commands[1], Command::CAll(_)));
     }
 
     #[test]

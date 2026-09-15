@@ -47,6 +47,16 @@ pub struct CheckConditions {
     pub conds: Vec<Box<dyn CheckCondition>>,
 }
 
+/// Whether a command consumes a following file path argument.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub enum FileArgPolicy {
+    /// The command never accepts a file path.
+    #[default]
+    No,
+    /// The command consumes a following file path argument.
+    Yes,
+}
+
 /// tracks compile-time constants about a given Command:
 /// flags it supports, the name and whether it can mutate
 /// source code lines (only change/prepend/append/delete do that)
@@ -58,6 +68,8 @@ pub struct CommandDefinition {
     pub name: &'static str,
     /// True when command can mutate line text.
     pub mutates_line_text: bool,
+    /// Whether the command uses a separate file path argument.
+    pub file_arg_policy: FileArgPolicy,
 }
 
 impl Default for CheckConditions {

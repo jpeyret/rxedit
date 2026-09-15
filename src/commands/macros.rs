@@ -1,4 +1,5 @@
 use crate::Command;
+use crate::base::FileArgPolicy;
 use crate::commands::prelude::*;
 use crate::common;
 use crate::common::LineStatus;
@@ -41,6 +42,7 @@ impl CommandActions for CMacro {
         CommandDefinition {
             name: command_prefix::MACROS,
             mutates_line_text: false,
+            file_arg_policy: FileArgPolicy::Yes,
             ..Default::default()
         }
     }

@@ -12,6 +12,7 @@ pub fn get_constant_definition() -> CommandDefinition {
     CommandDefinition {
         name: "append",
         mutates_line_text: true,
+        file_arg_policy: FileArgPolicy::No,
         flags: commandflags::insert_flags(),
     }
 }

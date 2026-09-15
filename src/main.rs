@@ -572,4 +572,5 @@ mod tests {
     fn topic_help_accepts_user_messages_topic() {
         assert!(print_topic_help("user_messages", &user_config_path_display()).is_ok());
     }
+
 }

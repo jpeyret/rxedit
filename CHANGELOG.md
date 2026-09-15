@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+
+## [0.1.2] - 2026-09-14
+
+### Changed
+
+- Change the default search pattern to match empty lines.
+- (documentation) Spaced out rxedit command line samples in the html help.
+
+### Fixed
+
+- Deletion no longer leaves blank lines behind.
+
 ## [0.1.1] - 2024-09-03
 
 ### Added
@@ -33,3 +46,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Clippy warnings resolved
 - Code formatting verified
+
