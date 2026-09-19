@@ -50,7 +50,7 @@ Example:  show all lines containing `TODO` and 2 lines afterwards, using the `A2
 - `u` user confirmation, match by match, on `delete` or `change` commands.
 - `sk=debug.`  Sets `key=debug` on matching lines.  This can be used to constrain further commands using `wk`.
 - `wk=debug.`  In addition to any match conditions, the command will only affect lines with `key=debug` set. 
-- `ln=1-10.` In addition to any match conditions the command will only affect the first 10 lines.
+- `ln=1..10.` In addition to any match conditions the command will only affect the first 10 lines.
 
 Flags are designed to be mixed freely together in any order:  
 

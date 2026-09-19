@@ -8,9 +8,9 @@ use std::fs;
 /// holds functions to operate on Vec.LineStatus
 pub mod vec_lines {
     use super::LineStatus;
-    
+
     use crate::common::GetLine;
-    
+
     use crate::constants::Direction;
     use sha2::{Digest, Sha256};
     use std::collections::HashSet;
@@ -151,56 +151,6 @@ pub fn split_name_negation_regex(arg1: &str) -> (Regex, Option<Regex>) {
     )
 }
 
-/// supports various expansions and formats, separated by commas
-/// n1,n2,n3 : show these lines
-/// -n       : show lines 1-n
-/// n-       : show lines n-...end of file
-/// n1-n2    : show lines from n1 to n2
-pub fn parse_lines_payload(arg1: &str) -> (usize, HashSet<usize>, usize) {
-    let mut res: HashSet<usize> = HashSet::new();
-    let default = CheckLineRange::default();
-    let mut until_: usize = default.until_;
-    let mut from_: usize = default.from_;
-    let parts: Vec<&str> = arg1.split(",").collect();
-
-    for part in parts {
-        let subparts: Vec<&str> = part.split("-").map(|v: &str| v.trim()).collect();
-
-        match subparts[..] {
-            [start, end] | [start, end, ..] if (end.is_empty()) => {
-                // 3-
-                if let Ok(pos) = start.parse::<usize>()
-                    && pos < from_
-                {
-                    from_ = pos;
-                }
-            }
-            [start, end] | [start, end, ..] if (start.is_empty()) => {
-                // - 30
-                if let Ok(pos) = end.parse::<usize>()
-                    && pos > until_
-                {
-                    until_ = pos;
-                }
-            }
-            [start, end] | [start, end, ..] => {
-                if let (Ok(start_num), Ok(end_num)) = (start.parse::<usize>(), end.parse::<usize>())
-                {
-                    for i in start_num..=end_num {
-                        res.insert(i);
-                    }
-                }
-            }
-            [idx] => {
-                if let Ok(idx_num) = idx.parse::<usize>() {
-                    res.insert(idx_num);
-                }
-            }
-            _ => {}
-        }
-    }
-    (until_, res, from_)
-}
 
 /// Reads commands from a file, ignoring blank lines and `#` comments.
 pub fn parse_commands_file(path: &str) -> Result<Vec<String>, String> {
@@ -315,37 +265,4 @@ mod tests {
         assert_eq!(got, expected);
     }
 
-    //sort numbers and return as command separated
-    fn help_fmt_ln_args(args: &(usize, HashSet<usize>, usize)) -> (i32, String, i32) {
-        let (until_, hits, from_) = args;
-        let mut nums: Vec<usize> = hits.iter().copied().collect();
-        nums.sort_unstable();
-        let res = nums
-            .iter()
-            .map(|n| n.to_string())
-            .collect::<Vec<String>>()
-            .join(",");
-
-        (*until_ as i32, res, *from_ as i32)
-    }
-
-    use super::parse_lines_payload;
-
-    #[test]
-    fn test_basic_comma() {
-        let got = help_fmt_ln_args(&parse_lines_payload("1,3"));
-        assert_eq!((0_i32, "1,3".to_string(), 9_999_999_i32), got);
-    }
-
-    #[test]
-    fn test_idx_end() {
-        let got = help_fmt_ln_args(&parse_lines_payload("8-"));
-        assert_eq!((0_i32, "".to_string(), 8_i32), got);
-    }
-
-    #[test]
-    fn test_start_idx() {
-        let got = help_fmt_ln_args(&parse_lines_payload("-3"));
-        assert_eq!((3_i32, "".to_string(), 9_999_999_i32), got);
-    }
 }

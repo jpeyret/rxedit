@@ -24,20 +24,20 @@ value = "C(\\d+)"
 example = "::C5"
 
 [commandflags.SETKEY]
-value = "sk=([a-z]+)(?:\\.|$)"
-example = "::sk=important."
+value = "sk=([a-z]+)(?:\\.|/|$)"
+example = "::sk=important/"
 
 [commandflags.WHEREKEY]
-value = "wk=([a-z]+)(?:\\.|$)"
-example = "::wk=mykey."
+value = "wk=([a-z]+)(?:\\.|/|$)"
+example = "::wk=mykey/"
 
 [commandflags.WHERETYPE]
-value = "wt=([a-z]+)(?:\\.|$)"
-example = "::wt=f. (shows only functions)"
+value = "wt=([a-z]+)(?:\\.|/|$)"
+example = "::wt=f/ (shows only functions)"
 
 [commandflags.WHERE_LINENUM]
-value = "wl=([0-9,-]+)(?:\\.|$)"
-example = "::wl=-5,22,99."
+value = "wl=([-0-9A-Ca-chtHT,.]+)"
+example = "::wl=..5,8,-1/"
 
 [commandflags.FIXED_STRING]
 value = "F"

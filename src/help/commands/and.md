@@ -35,12 +35,12 @@ def do_init(func):
 
 
 
-`rxedit pysample.py d:: d::_::sk=keep d::::wt=c.sk=keep and::::wk=keep.wl=-20`
+`rxedit pysample.py d:: d::_::sk=keep d::::wt=c.sk=keep and::::wk=keep.wl=..20`
 
 - `d::` - show all declarations
 - `d::_::sk=keep` - set any declarations with `_` in their names as key=keep
 - `d::::wt=c.sk=keep` - use `wt=c` i..e where type = class to set any class to key=keep
-- `and::::wk=keep.wl=-20` only show visible lines where key=keep and - `wl=-1` - within lines 1 to 10.
+- `and::::wk=keep.wl=..20` only show visible lines where key=keep and within lines 1 to 20.
 
 
 #### Output:

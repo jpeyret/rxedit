@@ -5,7 +5,6 @@ use crate::common;
 use crate::common::TelemetryEvent;
 use crate::common::{GrepCommandQualifier, LineStatus};
 use crate::constants as c;
-use crate::utilities::parse_lines_payload;
 
 #[derive(Debug)]
 /// Shows a range of lines
@@ -17,12 +16,7 @@ pub struct CLines {
 }
 
 pub(crate) fn from_arg(arg: &str, payload: &str, flags: &str) -> (TelemetryEvent, Command) {
-    let crit = parse_lines_payload(payload);
-    let condition = common::CheckLineRange {
-        until_: crit.0,
-        wanted: crit.1,
-        from_: crit.2,
-    };
+    let condition = common::CheckLineRange::new(payload.to_string());
     let allowed_flags = c::commandflags::linesflags();
     let (qualifier, _unconsumed) = GrepCommandQualifier::build_with_flags(flags, allowed_flags);
 
@@ -64,11 +58,15 @@ impl CommandActions for CLines {
         lines: Vec<LineStatus>,
         _hashtree: &HashMap<usize, common::Parsed>,
     ) -> Vec<LineStatus> {
+        let total_lines = lines.len();
         lines
             .into_iter()
             .map(|mut line_status| {
-                let hit = self.condition.check(&line_status)
-                    && self.qualifier.conditions_checker.check(&line_status);
+                let hit = self.condition.check_with_total_lines(&line_status, total_lines)
+                    && self
+                        .qualifier
+                        .conditions_checker
+                        .check_with_total_lines(&line_status, total_lines);
                 if hit && let Some(key) = &self.qualifier.set_key {
                     line_status.meta.key = key.clone();
                 }

@@ -26,4 +26,4 @@ the example below.
 Sometimes however, with Python, this is done to avoid circular import dependencies, so we'll use the `::o`
 "show owner" flag as well.
 
-`rxedit utils.py i::::wl=100-.o`
+`rxedit utils.py i::::wl=100../o`

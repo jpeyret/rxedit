@@ -13,6 +13,7 @@ pub mod formatters;
 pub mod language_api;
 pub mod languages;
 pub mod loader_for_constants;
+pub mod support;
 pub mod telemetry;
 pub mod treesitterparser;
 pub mod user_messages;
@@ -246,13 +247,16 @@ fn search_vector(
     qualifier: &GrepCommandQualifier,
 ) -> (Vec<usize>, Vec<LineStatus>) {
     let mut hit_positions = Vec::new();
+    let total_lines = lines.len();
 
     let result_lines = lines
         .into_iter()
         .enumerate()
         .map(|(idx, mut line_status)| {
             let hit = searcher.search(&line_status.line)
-                && qualifier.conditions_checker.check(&line_status);
+                && qualifier
+                    .conditions_checker
+                    .check_with_total_lines(&line_status, total_lines);
             if hit {
                 hit_positions.push(idx);
                 if let Some(ref key) = qualifier.set_key {

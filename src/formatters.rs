@@ -42,21 +42,7 @@ fn build_templates() -> Environment<'static> {
 
 impl fmt::Display for CheckLineRange {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let default = CheckLineRange::default();
-        let mut tmp: Vec<String> = Vec::new();
-        if self.until_ != default.until_ {
-            tmp.push(format!("1-{}", self.until_));
-        }
-        if !self.wanted.is_empty() {
-            tmp.push(format!("wanted {:?}", self.wanted));
-        }
-        if self.from_ != default.from_ {
-            tmp.push(format!("{}-", self.from_));
-        }
-        if !tmp.is_empty() {
-            tmp.insert(0, "lines ".to_string());
-        }
-        let res = join_indents(tmp, "/ ");
+        let res = format!("!!!TODO!!! CheckLineRange={:?}", &self);
         write!(f, "{}", res)
     }
 }
@@ -110,29 +96,11 @@ impl fmt::Display for GrepCommandQualifier {
                 wheres.push(format!("where key = `{}`", ck.required_key));
                 continue;
             } else if let Some(clines) = b_cond.as_any().downcast_ref::<CheckLineRange>() {
-                let (until_, wanted, from_) = (clines.until_, clines.wanted.clone(), clines.from_);
 
-                let default = CheckLineRange::default();
+                let res = format!("!!!TODO!!! CheckLineRange={:?}", &clines);
 
-                let mut tmp3 = Vec::new();
-                if until_ != default.until_ {
-                    tmp3.push(format!("1-{}", until_));
-                };
+                wheres.push(res);
 
-                if !wanted.is_empty() {
-                    tmp3.push(format!(" in {:?}", wanted));
-                };
-
-                if from_ != default.from_ {
-                    // dbg!(&from_, default.from_);
-                    tmp3.push(format!("{}-...", from_));
-                };
-
-                if !tmp3.is_empty() {
-                    tmp3.insert(0, "lines:".to_string());
-                    let s_ = join_indents(tmp3, " ");
-                    wheres.push(s_);
-                }
                 continue;
             }
         }

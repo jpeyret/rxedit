@@ -74,6 +74,8 @@ impl CommandActions for CImports {
             _ => panic!("CImport requires GrepQualifier"),
         };
 
+        let total_lines = lines.len();
+
         let hit_hashtree_keys: Vec<usize> = hashtree
             .iter()
             .filter_map(|(key, parsed)| {
@@ -82,7 +84,11 @@ impl CommandActions for CImports {
 
                 let key_matches = lines
                     .get(*key)
-                    .map(|line_status| qualifier.conditions_checker.check(line_status))
+                    .map(|line_status| {
+                        qualifier
+                            .conditions_checker
+                            .check_with_total_lines(line_status, total_lines)
+                    })
                     .unwrap_or_else(|| qualifier.conditions_checker.conds.is_empty());
 
                 let import_match = parsed.names.iter().any(|name| self.searcher.search(name));

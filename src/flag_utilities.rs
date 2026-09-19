@@ -7,7 +7,8 @@
 //! is returned.
 
 use crate::common::CheckConditions;
-use crate::common::{CheckKey, CheckLineRange, GrepCommandQualifier, get_global_config};
+use crate::common::{CheckKey, GrepCommandQualifier, get_global_config};
+use crate::support::linenums::CheckLineRange;
 use regex::Regex;
 use std::io::{self, IsTerminal};
 use std::process;
@@ -34,6 +35,12 @@ static WHERE_LINENUM_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(commandflags::WHERE_LINENUM.value).expect("WHERE_LINENUM_REGEX regex must be valid")
 });
 
+fn normalize_where_linenum_capture(value: String) -> String {
+    if value.ends_with('.') && !value.ends_with("..") {
+        return value[..value.len() - 1].to_string();
+    }
+    value
+}
 /// Regex used to parse the `wt=` where-type filter flag.
 pub static WHERETYPE_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(commandflags::WHERETYPE.value).expect("WHERETYPE regex must be valid"));
@@ -92,8 +99,8 @@ impl GrepCommandQualifier {
         };
 
         if let Some(where_linenum) = where_linenum {
-            let checker = CheckLineRange::new(where_linenum);
-            conditions_checker.add_condition(checker);
+            conditions_checker
+                .add_condition(CheckLineRange::new(normalize_where_linenum_capture(where_linenum)));
         }
 
         let (remaining, before_match) = if allow_before {
@@ -257,7 +264,13 @@ pub fn return_capture_and_consume(patre: &Lazy<Regex>, haystack: &str) -> (Strin
         Some(caps) => {
             let m = caps.get(0).unwrap();
             let captured = caps.get(1).map(|c| c.as_str().to_string());
-            let unconsumed = format!("{}{}", &haystack[..m.start()], &haystack[m.end()..]);
+            let mut end = m.end();
+            if let Some(next) = haystack[end..].chars().next() {
+                if next == '/' || next == '.' {
+                    end += next.len_utf8();
+                }
+            }
+            let unconsumed = format!("{}{}", &haystack[..m.start()], &haystack[end..]);
             (unconsumed, captured)
         }
     }
@@ -377,6 +390,46 @@ mod tests {
     fn build_parses_setkey_flag_at_end_of_string() {
         let (qualifier, unconsumed) = GrepCommandQualifier::build("sk=exc");
         assert_eq!(qualifier.set_key, Some("exc".to_string()));
+        assert_eq!(unconsumed, "");
+    }
+
+    #[test]
+    fn build_parses_setkey_flag_with_slash_separator() {
+        let (qualifier, unconsumed) = GrepCommandQualifier::build("sk=exc/XY");
+        assert_eq!(qualifier.set_key, Some("exc".to_string()));
+        assert_eq!(unconsumed, "XY");
+    }
+
+    #[test]
+    fn build_parses_where_linenum_flag_with_slash_separator() {
+        let (qualifier, unconsumed) = GrepCommandQualifier::build("wl=5,7/XY");
+        let matching = LineStatus { line_number: 5, ..Default::default() };
+        let non_matching = LineStatus { line_number: 6, ..Default::default() };
+        assert!(qualifier.conditions_checker.check(&matching));
+        assert!(!qualifier.conditions_checker.check(&non_matching));
+        assert_eq!(unconsumed, "XY");
+    }
+
+    #[test]
+    fn build_parses_where_linenum_flag_with_open_ended_range() {
+        let (qualifier, unconsumed) = GrepCommandQualifier::build("wl=30../XY");
+        let matching = LineStatus { line_number: 30, ..Default::default() };
+        let later = LineStatus { line_number: 31, ..Default::default() };
+        let non_matching = LineStatus { line_number: 29, ..Default::default() };
+        assert!(qualifier.conditions_checker.check(&matching));
+        assert!(qualifier.conditions_checker.check(&later));
+        assert!(!qualifier.conditions_checker.check(&non_matching));
+        assert_eq!(unconsumed, "XY");
+    }
+
+    #[test]
+    fn build_where_linenum_stops_before_next_flag_char() {
+        let (qualifier, unconsumed) = GrepCommandQualifier::build("wl=30..i");
+        let matching = LineStatus { line_number: 30, ..Default::default() };
+        let non_matching = LineStatus { line_number: 29, ..Default::default() };
+        assert!(qualifier.conditions_checker.check(&matching));
+        assert!(!qualifier.conditions_checker.check(&non_matching));
+        assert_eq!(qualifier.regex_flags, Some("i".to_string()));
         assert_eq!(unconsumed, "");
     }
 

@@ -13,7 +13,7 @@ pub use crate::telemetry::{
     NoGrammarNotification, TelemetryEvent, append_telemetry, clear_telemetry, request_explain,
     take_explain_requests, telemetry_events,
 };
-use crate::{constants::DEBUGGING, utilities::parse_lines_payload};
+use crate::{constants::DEBUGGING};
 use once_cell::sync::Lazy;
 
 /// Re-exported base command and line-state types.
@@ -21,6 +21,7 @@ pub use crate::base::{
     CheckCondition, CheckConditions, DeclarationsCommandQualifier, GrepCommandQualifier,
     LineStatus, MetaInfo,
 };
+pub use crate::support::linenums::{CheckLineRange, Range};
 
 #[derive(Debug, Clone, Default)]
 /// Global runtime configuration shared by commands.
@@ -224,50 +225,6 @@ pub fn calc_indent(line: &str) -> i32 {
 }
 
 //     pub conds: Vec<Box<dyn CheckCondition>>,
-
-#[derive(Debug, Clone)]
-/// Condition that matches specific line numbers or ranges.
-pub struct CheckLineRange {
-    /// Inclusive upper bound for accepted line numbers.
-    pub until_: usize,
-    /// Explicit line numbers that are accepted.
-    pub wanted: HashSet<usize>,
-    /// Inclusive lower bound for accepted line numbers.
-    pub from_: usize,
-}
-
-impl CheckLineRange {
-    /// Builds a line-range condition from payload text.
-    pub fn new(where_linenum: String) -> Self {
-        let (until_, wanted, from_) = parse_lines_payload(&where_linenum);
-        CheckLineRange {
-            until_,
-            wanted,
-            from_,
-        }
-    }
-}
-
-impl Default for CheckLineRange {
-    fn default() -> Self {
-        CheckLineRange {
-            until_: 0_usize,
-            from_: 9_999_999_usize,
-            wanted: HashSet::new(),
-        }
-    }
-}
-
-impl CheckCondition for CheckLineRange {
-    fn check(&self, line: &LineStatus) -> bool {
-        (line.line_number <= self.until_)
-            || self.wanted.contains(&line.line_number)
-            || (line.line_number >= self.from_)
-    }
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-}
 
 #[derive(Debug, Clone)]
 /// Condition that matches lines by metadata key.

@@ -134,12 +134,12 @@ Test_Declare_FunctionClasses:
 Test_Head3:
   file_path: $diroisamples/pysample.py
   commands:
-    - "more::::wl=-3."
+    - "more::::wl=..3/"
 
 Test_From30:
   file_path: $diroisamples/pysample.py
   commands:
-    - "more::::wl=30-."
+    - "more::::wl=30../"
 
 Test_Declare_ParentNegation_AllowStandalones:
   file_path: $diroisamples/pysample.py
@@ -149,7 +149,35 @@ Test_Declare_ParentNegation_AllowStandalones:
 Test_Lines_TwoToFive:
   file_path: $diroisamples/pysample.py
   commands:
-    - "lines::2-5::"  # skip line 1, then display up to line 5
+    - "lines::2..5::"  # skip line 1, then display up to line 5
+
+
+Test_Lines_VeryLast:
+    # """ tail -1 equivalent, via -1"""
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "lines::-1"  # same as Python negative string indexing
+
+Test_Lines_Last5Tail:
+    # """ tail -5 equivalent, via t"""
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "lines::t5"  # last 5 lines
+
+
+Test_Lines_Last5dots:
+    # """ tail -5 equivalent, via -5.."""
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "lines::-5.."  # same as Python negative string indexing
+
+Test_Lines_Last5minusLast2:
+    # """ tail -5 equivalent, via -5..-3"""
+  file_path: $diroisamples/pysample.py
+  commands:
+    - "lines::-5..-3" # same as Python negative string indexing
+
+
 
 Test_InvalidRegex:
   file_path: $diroisamples/pysample.py

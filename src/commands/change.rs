@@ -56,6 +56,7 @@ impl CommandActions for CChange {
         lines: Vec<LineStatus>,
         _hashtree: &HashMap<usize, common::Parsed>,
     ) -> Vec<LineStatus> {
+        let total_lines = lines.len();
         let grep_qualifier = self.qualifier.as_ref().map(|qualifier| match qualifier {
             CommandQualifier::GrepQualifier(grep) => grep,
             _ => panic!("CChange requires GrepQualifier when qualifier is present"),
@@ -71,7 +72,7 @@ impl CommandActions for CChange {
 
         for line_status in lines {
             let key_matches = grep_qualifier
-                .map(|grep| grep.conditions_checker.check(&line_status))
+                .map(|grep| grep.conditions_checker.check_with_total_lines(&line_status, total_lines))
                 .unwrap_or(true);
 
             if line_status.visible && key_matches {

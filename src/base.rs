@@ -9,6 +9,10 @@ use std::any::Any;
 pub trait CheckCondition: fmt::Debug {
     /// Returns true when the condition matches the given line.
     fn check(&self, line: &LineStatus) -> bool;
+    /// Returns true when the condition matches the given line with knowledge of total lines.
+    fn check_with_total_lines(&self, line: &LineStatus, _total_lines: usize) -> bool {
+        self.check(line)
+    }
     /// Supports downcasting to concrete condition types.
     fn as_any(&self) -> &dyn Any;
 }
@@ -92,6 +96,13 @@ impl CheckConditions {
     /// do all conditions match for this line?
     pub fn check(&self, line: &LineStatus) -> bool {
         self.conds.iter().all(|checker| checker.check(line))
+    }
+
+    /// do all conditions match for this line, using total line count context?
+    pub fn check_with_total_lines(&self, line: &LineStatus, total_lines: usize) -> bool {
+        self.conds
+            .iter()
+            .all(|checker| checker.check_with_total_lines(line, total_lines))
     }
 }
 

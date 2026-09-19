@@ -562,6 +562,20 @@ class Test_Declare_ParentNegation_AllowStandalones(Best_):
 class Test_Lines_TwoToFive(Best_):
     """display lines 2-5 """
 
+class Test_Lines_VeryLast(Best_):
+    """ tail -1 equivalent, via -1"""
+
+class Test_Lines_Last5Tail(Best_):
+    """ tail -5 equivalent, via t5"""
+
+class Test_Lines_Last5dots(Best_):
+    """ tail -5 equivalent, via -5.."""
+
+class Test_Lines_Last5minusLast2(Best_):
+    """ tail -5 equivalent, via -5..-3"""
+
+
+
 class Test_InvalidRegex(Best_):
     "invalid regex"
 

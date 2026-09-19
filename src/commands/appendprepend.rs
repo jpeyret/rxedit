@@ -202,6 +202,7 @@ impl CommandActions for CInserter {
         _hashtree: &HashMap<usize, common::Parsed>,
     ) -> Vec<LineStatus> {
         let grep_qualifier = self.grep_qualifier();
+        let total_lines = lines.len();
         let user_confirmation = grep_qualifier
             .map(|grep| grep.user_confirmation)
             .unwrap_or(false);
@@ -210,7 +211,7 @@ impl CommandActions for CInserter {
 
         for line_status in lines {
             let key_matches = grep_qualifier
-                .map(|grep| grep.conditions_checker.check(&line_status))
+                .map(|grep| grep.conditions_checker.check_with_total_lines(&line_status, total_lines))
                 .unwrap_or(true);
 
             let hit =

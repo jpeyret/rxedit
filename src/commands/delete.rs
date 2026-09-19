@@ -46,6 +46,7 @@ impl CommandActions for CDelete {
         } else {
             None
         };
+        let total_lines = lines.len();
 
         // Filter out visible lines that match the pattern.
         // remember:  lines not kept are essentially deleted
@@ -53,7 +54,9 @@ impl CommandActions for CDelete {
             .into_iter()
             .filter(|line_status| {
                 let hit = self.searcher.search(&line_status.line)
-                    && qualifier.conditions_checker.check(line_status);
+                    && qualifier
+                        .conditions_checker
+                        .check_with_total_lines(line_status, total_lines);
 
                 if qualifier.user_confirmation {
                     let display_lines = display_lines
