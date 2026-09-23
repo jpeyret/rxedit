@@ -10,11 +10,11 @@
 
 use clap::{ArgAction, CommandFactory, Parser};
 use log::debug;
-use rxedit::config_utilities;
 use rxedit::common::{
     AppConfig, CommandQualifier, dbg_, get_global_config, set_global_config, take_explain_requests,
     telemetry_events,
 };
+use rxedit::config_utilities;
 use rxedit::constants::{DEBUGGING, commandflags};
 use rxedit::utilities;
 use rxedit::utilities::vec_lines::digest_lines;
@@ -371,7 +371,12 @@ struct CliArgs {
 
     #[arg(long = "gen-config", action = ArgAction::SetTrue, help = "generate user config file if it does not exist")]
     gen_config: bool,
-    #[arg(short = 'c', long = "config", value_name = "FILE", help = "load config from the given file")]
+    #[arg(
+        short = 'c',
+        long = "config",
+        value_name = "FILE",
+        help = "load config from the given file"
+    )]
     config: Option<String>,
     #[arg()]
     commands: Vec<String>,
@@ -572,5 +577,4 @@ mod tests {
     fn topic_help_accepts_user_messages_topic() {
         assert!(print_topic_help("user_messages", &user_config_path_display()).is_ok());
     }
-
 }

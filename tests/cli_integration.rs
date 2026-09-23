@@ -1,7 +1,6 @@
 /// simplistic test runner for the cli.  reads individual toml files for the command line arguments
 /// and then checks for the presence of wanted words, and the absence
 /// of unwanted words, in the output.
-
 use serde::Deserialize;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -16,7 +15,9 @@ struct CliCase {
 }
 
 fn cli_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("tests").join("cli_cases")
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("cli_cases")
 }
 
 fn load_case(name: &str) -> CliCase {
@@ -75,7 +76,6 @@ fn cli_pysample_add() {
 fn cli_pymodify() {
     assert_case("pymodify.toml");
 }
-
 
 #[test]
 fn cli_rust_signature() {

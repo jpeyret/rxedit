@@ -1,4 +1,5 @@
 use crate::ChangeReplacer;
+use crate::base::ConditionContext;
 use crate::commands::prelude::*;
 use crate::{Command, new_replacer};
 use inquire::Confirm;
@@ -57,6 +58,9 @@ impl CommandActions for CChange {
         _hashtree: &HashMap<usize, common::Parsed>,
     ) -> Vec<LineStatus> {
         let total_lines = lines.len();
+        let context = ConditionContext {
+            total_lines: Some(total_lines),
+        };
         let grep_qualifier = self.qualifier.as_ref().map(|qualifier| match qualifier {
             CommandQualifier::GrepQualifier(grep) => grep,
             _ => panic!("CChange requires GrepQualifier when qualifier is present"),
@@ -72,7 +76,10 @@ impl CommandActions for CChange {
 
         for line_status in lines {
             let key_matches = grep_qualifier
-                .map(|grep| grep.conditions_checker.check_with_total_lines(&line_status, total_lines))
+                .map(|grep| {
+                    grep.conditions_checker
+                        .check_with_context(&line_status, &context)
+                })
                 .unwrap_or(true);
 
             if line_status.visible && key_matches {

@@ -113,7 +113,7 @@ macrocode = "~~lt."
 expansion = "<"
 
 [grep_shortcodes.FIELD_SEPARATOR]
-macrocode = "~~sep."
+macrocode = "~~~"
 expansion = "::"
 
 [grep_shortcodes.COLON]

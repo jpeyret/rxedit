@@ -181,7 +181,6 @@ mod tests {
         }));
     }
 
-
     #[test]
     fn make_command_more_appends_generic_command_notification() {
         let _guard = lock_test_config();

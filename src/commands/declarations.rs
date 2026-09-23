@@ -657,7 +657,6 @@ mod tests {
         assert!(parent_indices.contains(&1));
     }
 
-
     #[test]
     fn showowner_for_js_uses_parents_to_include_class_owner() {
         reset_global_state_for_tests();

@@ -5,7 +5,7 @@
 
 use crate::commands::search::Searcher;
 use crate::common::{CheckKey, CheckLineRange, DeclarationsCommandQualifier, GrepCommandQualifier};
-use crate::constants::{DEBUGGING, command_prefix, commandflags};
+use crate::constants::{command_prefix, commandflags};
 use crate::telemetry::{NoGrammarNotification, TelemetryEvent};
 use core::fmt;
 use minijinja::{Environment, context};
@@ -42,8 +42,7 @@ fn build_templates() -> Environment<'static> {
 
 impl fmt::Display for CheckLineRange {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let res = format!("!!!TODO!!! CheckLineRange={:?}", &self);
-        write!(f, "{}", res)
+        write!(f, "{}", self.for_telemetry)
     }
 }
 
@@ -96,8 +95,7 @@ impl fmt::Display for GrepCommandQualifier {
                 wheres.push(format!("where key = `{}`", ck.required_key));
                 continue;
             } else if let Some(clines) = b_cond.as_any().downcast_ref::<CheckLineRange>() {
-
-                let res = format!("!!!TODO!!! CheckLineRange={:?}", &clines);
+                let res = format!("where linenum in {:}", clines);
 
                 wheres.push(res);
 
@@ -145,12 +143,43 @@ fn join_indents(lines: Vec<String>, sep: &str) -> String {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::CheckLineRange;
+    use crate::common::Range;
+    use std::collections::HashSet;
+
+    #[test]
+    fn check_line_range_display_includes_all_parse_time_state() {
+        let checker = CheckLineRange {
+            where_linenum: "..2,-3..".to_string(),
+            ranges: vec![Range::new(1, 2)],
+            deferred_end_ranges: Vec::new(),
+            hashset: HashSet::from([43, 44, 45]),
+            deferred_end: HashSet::from([3]),
+            for_telemetry: "???".to_string(),
+        };
+
+        assert_eq!(format!("{}", checker), "???");
+    }
+
+    #[test]
+    fn check_line_range_display_handles_empty_fields() {
+        let checker = CheckLineRange {
+            where_linenum: String::new(),
+            ranges: Vec::new(),
+            deferred_end_ranges: Vec::new(),
+            hashset: HashSet::new(),
+            deferred_end: HashSet::new(),
+            for_telemetry: "???".to_string(),
+        };
+
+        assert_eq!(format!("{}", checker), "???");
+    }
+}
+
 impl fmt::Display for DeclarationsCommandQualifier {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if *DEBUGGING {
-            dbg!(&self);
-        }
-
         let mut tmp = Vec::new();
         tmp.push(self.searchqualifier.to_string());
         let mut tmp2 = Vec::new();
@@ -178,10 +207,6 @@ impl fmt::Display for DeclarationsCommandQualifier {
 
 impl fmt::Display for Searcher {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if *DEBUGGING {
-            dbg!("\n\nSearcher=", &self);
-        }
-
         let s_out = match &self {
             Searcher::RegexSearcher(cond) => {
                 format!("regex: `{}`", cond.patre)
@@ -231,19 +256,12 @@ fn get_explain(
 ) -> String {
     let name: &str = name.as_ref();
     let arg: &str = arg.as_ref();
-    let qualifier: &str = qualifier.as_ref();
+    let _qualifier: &str = qualifier.as_ref();
     let unrecognized = unrecognized.as_ref();
-
-    if *DEBUGGING {
-        dbg!(&qualifier);
-    }
 
     let env = build_templates();
     let template = env.get_template(command_prefix::EXPLAIN).unwrap();
     let unrecognized = fmt_unrecognized(unrecognized);
-    if *DEBUGGING {
-        dbg!("get_explain", &arg, &unrecognized);
-    }
     let searcher = searcher.unwrap_or("".to_string());
     let command = CommandExplainRepresentation {
         name: name.to_owned(),
@@ -275,9 +293,6 @@ impl fmt::Display for TelemetryEvent {
 
                 let mut lines = Vec::new();
 
-                if *DEBUGGING {
-                    dbg!(&qualifier);
-                }
                 lines.push(qualifier.to_string());
 
                 write!(
@@ -314,9 +329,6 @@ impl fmt::Display for TelemetryEvent {
             } => {
                 let mut lines = Vec::new();
 
-                if *DEBUGGING {
-                    dbg!(&qualifier);
-                }
                 lines.push(qualifier.to_string());
                 write!(
                     f,

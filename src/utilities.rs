@@ -1,8 +1,7 @@
 //! Utility functions to deal with Vec of source code lines.
-use crate::common::{CheckLineRange, LineStatus};
+use crate::common::LineStatus;
 use crate::constants::{DEBUGGING, RE_SPLIT_NEGATIVES_NAMES};
 use regex::Regex;
-use std::collections::HashSet;
 use std::fs;
 
 /// holds functions to operate on Vec.LineStatus
@@ -52,7 +51,6 @@ pub mod vec_lines {
 
         indices.difference(&skip).copied().collect()
     }
-
 
     /// re-assemble all lines as if for the file system.
     pub fn vec_lines_to_text<T: GetLine>(v_lines: &[T]) -> String {
@@ -150,7 +148,6 @@ pub fn split_name_negation_regex(arg1: &str) -> (Regex, Option<Regex>) {
         rneg,
     )
 }
-
 
 /// Reads commands from a file, ignoring blank lines and `#` comments.
 pub fn parse_commands_file(path: &str) -> Result<Vec<String>, String> {
@@ -264,5 +261,4 @@ mod tests {
         let expected: HashSet<usize> = HashSet::from([1, 3]);
         assert_eq!(got, expected);
     }
-
 }

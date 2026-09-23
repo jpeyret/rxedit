@@ -1,4 +1,5 @@
 use crate::Search;
+use crate::base::ConditionContext;
 use crate::commands::prelude::*;
 use inquire::Confirm;
 
@@ -47,6 +48,9 @@ impl CommandActions for CDelete {
             None
         };
         let total_lines = lines.len();
+        let context = ConditionContext {
+            total_lines: Some(total_lines),
+        };
 
         // Filter out visible lines that match the pattern.
         // remember:  lines not kept are essentially deleted
@@ -56,7 +60,7 @@ impl CommandActions for CDelete {
                 let hit = self.searcher.search(&line_status.line)
                     && qualifier
                         .conditions_checker
-                        .check_with_total_lines(line_status, total_lines);
+                        .check_with_context(line_status, &context);
 
                 if qualifier.user_confirmation {
                     let display_lines = display_lines

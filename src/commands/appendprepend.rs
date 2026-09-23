@@ -1,3 +1,4 @@
+use crate::base::ConditionContext;
 use crate::commands::prelude::*;
 use crate::common::{
     CommandQualifier, GrepCommandQualifier, TelemetryEvent, append_telemetry, calc_indent,
@@ -203,6 +204,9 @@ impl CommandActions for CInserter {
     ) -> Vec<LineStatus> {
         let grep_qualifier = self.grep_qualifier();
         let total_lines = lines.len();
+        let context = ConditionContext {
+            total_lines: Some(total_lines),
+        };
         let user_confirmation = grep_qualifier
             .map(|grep| grep.user_confirmation)
             .unwrap_or(false);
@@ -211,7 +215,10 @@ impl CommandActions for CInserter {
 
         for line_status in lines {
             let key_matches = grep_qualifier
-                .map(|grep| grep.conditions_checker.check_with_total_lines(&line_status, total_lines))
+                .map(|grep| {
+                    grep.conditions_checker
+                        .check_with_context(&line_status, &context)
+                })
                 .unwrap_or(true);
 
             let hit =

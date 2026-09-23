@@ -145,7 +145,7 @@ pub fn format_config_help(config_path: &str) -> String {
         .replace("{ENV_SPACER}", env_vars::SPACER)
         .replace("{ENV_LINE_NUMBER}", env_vars::LINE_NUMBER)
         .replace("{ENV_GREP_SHORTCODES}", env_vars::GREP_SHORTCODES)
-    .replace("{ENV_PLUGINS_DIRECTORY}", env_vars::PLUGINS_DIRECTORY)
+        .replace("{ENV_PLUGINS_DIRECTORY}", env_vars::PLUGINS_DIRECTORY)
 }
 
 pub fn format_user_messages_help() -> String {

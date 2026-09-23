@@ -8,12 +8,12 @@ use core::fmt;
 use std::collections::HashSet;
 use std::sync::RwLock;
 
+use crate::constants::DEBUGGING;
 /// Re-exported telemetry types and helpers.
 pub use crate::telemetry::{
     NoGrammarNotification, TelemetryEvent, append_telemetry, clear_telemetry, request_explain,
     take_explain_requests, telemetry_events,
 };
-use crate::{constants::DEBUGGING};
 use once_cell::sync::Lazy;
 
 /// Re-exported base command and line-state types.
@@ -147,7 +147,6 @@ impl GetLine for LineStatus {
         &self.line
     }
 }
-
 
 /// Result of a stop-or-add line evaluation.
 pub enum ConditionResult {

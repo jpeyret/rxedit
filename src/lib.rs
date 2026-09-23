@@ -13,6 +13,7 @@ pub mod formatters;
 pub mod language_api;
 pub mod languages;
 pub mod loader_for_constants;
+/// auxiliary, support, modules
 pub mod support;
 pub mod telemetry;
 pub mod treesitterparser;
@@ -41,7 +42,7 @@ use enum_dispatch::enum_dispatch;
 use regex::{Regex, RegexBuilder};
 use std::collections::HashMap;
 
-use crate::base::{CommandDefinition, FileArgPolicy};
+use crate::base::{CommandDefinition, ConditionContext, FileArgPolicy};
 use crate::commands::search::{ContainsKeepSkip, ContainsSearcher, RegexKeepSkip, RegexSearcher};
 use crate::common::{GrepCommandQualifier, LineStatus, TelemetryEvent, append_telemetry};
 
@@ -167,10 +168,6 @@ pub(crate) fn new_replacer(pattern_arg: &str, replace_with: &str, flags: &str) -
 
     let mut replace_with = replace_with.to_string();
 
-    if *c::DEBUGGING {
-        dbg!(&replace_with);
-    }
-
     use unescaper::unescape;
     let pattern = preformat(pattern_arg, &qualifier, c::grep_shortcodes::searchfield());
     let global = flags.contains(c::commandflags::CHANGE_ALL.value);
@@ -182,10 +179,6 @@ pub(crate) fn new_replacer(pattern_arg: &str, replace_with: &str, flags: &str) -
 
     const NL: &str = "\n";
     let linefeed = replace_with.contains(NL);
-
-    if *c::DEBUGGING {
-        dbg!(&linefeed, &replace_with);
-    }
 
     let replacer = if qualifier.fixed_string && !case_insensitive {
         ChangeReplacer::Literal {
@@ -248,6 +241,9 @@ fn search_vector(
 ) -> (Vec<usize>, Vec<LineStatus>) {
     let mut hit_positions = Vec::new();
     let total_lines = lines.len();
+    let context = ConditionContext {
+        total_lines: Some(total_lines),
+    };
 
     let result_lines = lines
         .into_iter()
@@ -256,7 +252,7 @@ fn search_vector(
             let hit = searcher.search(&line_status.line)
                 && qualifier
                     .conditions_checker
-                    .check_with_total_lines(&line_status, total_lines);
+                    .check_with_context(&line_status, &context);
             if hit {
                 hit_positions.push(idx);
                 if let Some(ref key) = qualifier.set_key {
@@ -411,8 +407,7 @@ fn append_generic_command_telemetry(command: &Command, arg: &str, searcher_in: O
     append_telemetry(tmp);
 }
 
-
-static DEFAULT_ON_EMPTY_PATTERN: &str =  "";
+static DEFAULT_ON_EMPTY_PATTERN: &str = "";
 
 /// Parses a single command string into a typed command value.
 pub fn make_command(arg: &str) -> Command {
@@ -422,11 +417,6 @@ pub fn make_command(arg: &str) -> Command {
 
     let segments = split_command_fields(arg);
     let segment_refs: Vec<&str> = segments.iter().map(|s| s.as_str()).collect();
-
-    if *c::DEBUGGING {
-        eprintln!("segment_refs={:?}",segment_refs);
-    }
-
 
     let command = match segment_refs.as_slice() {
         [prefix, arg0, flag] if matches!(*prefix, command_prefix::AND | command_prefix::AND1) => {
@@ -475,9 +465,12 @@ pub fn make_command(arg: &str) -> Command {
         [command_prefix::DELETE, arg0] | [command_prefix::DELETE1, arg0] => {
             commands::search::from_search(CommandVariant::CDelete, arg0, "", arg)
         }
-        [command_prefix::DELETE] | [command_prefix::DELETE1] => {
-            commands::search::from_search(CommandVariant::CDelete, DEFAULT_ON_EMPTY_PATTERN, "", arg)
-        }
+        [command_prefix::DELETE] | [command_prefix::DELETE1] => commands::search::from_search(
+            CommandVariant::CDelete,
+            DEFAULT_ON_EMPTY_PATTERN,
+            "",
+            arg,
+        ),
         [command_prefix::ALL, arg0, flag] | [command_prefix::ALL1, arg0, flag] => {
             commands::search::from_search(CommandVariant::CAll, arg0, flag, arg)
         }
@@ -634,7 +627,10 @@ fn command_file_arg_policy(arg: &str) -> FileArgPolicy {
 }
 
 fn fatal_bad_file_arg(command_name: &str, path: &str) -> ! {
-    eprintln!("{} {} is the problem due to a missing file.", command_name, path);
+    eprintln!(
+        "{} {} is the problem due to a missing file.",
+        command_name, path
+    );
     std::process::exit(1);
 }
 
@@ -664,8 +660,8 @@ fn expand_macros(args: &[String]) -> Vec<String> {
     while index < args.len() {
         let current = &args[index];
 
-        if matches!(command_file_arg_policy(current), FileArgPolicy::Yes) {
-            if let Some(path) = args.get(index + 1).map(String::as_str) {
+        if matches!(command_file_arg_policy(current), FileArgPolicy::Yes)
+            && let Some(path) = args.get(index + 1).map(String::as_str) {
                 if !std::path::Path::new(path).is_file() {
                     fatal_bad_file_arg(command_prefix::MACROS, path);
                 }
@@ -681,13 +677,7 @@ fn expand_macros(args: &[String]) -> Vec<String> {
                 index += 2;
                 continue;
             }
-        }
-
-        if current.starts_with("macro::") {
-            res.push(current.to_string());
-        } else {
-            res.push(current.to_string());
-        }
+        res.push(current.to_string());
         index += 1;
     }
 
@@ -738,7 +728,8 @@ mod tests {
 
     #[test]
     fn built_in_helper_implements_phase1_api_boundary() {
-        let helper = crate::treesitterparser::Helper::Python(crate::languages::python::HelperPython);
+        let helper =
+            crate::treesitterparser::Helper::Python(crate::languages::python::HelperPython);
         let result = helper.parse_content_to_hashtree(b"def hello():\n    return 1\n");
         assert!(!result.is_empty());
     }
@@ -1270,6 +1261,18 @@ mod tests {
         let Command::CExplain(CExplain) = cmd else {
             panic!("expected CExplain");
         };
+    }
+
+    #[test]
+    fn make_command_lines_with_invalid_segment_is_noop() {
+        use crate::Command;
+        use crate::make_command;
+
+        let _guard = TEST_GLOBAL_CONFIG_LOCK.lock().expect("test lock poisoned");
+        set_test_global_config(false, "sample.rs");
+        let cmd = make_command("lines::foobar..3");
+
+        assert!(matches!(cmd, Command::CNoop(_)));
     }
 
     #[test]

@@ -99,8 +99,9 @@ impl GrepCommandQualifier {
         };
 
         if let Some(where_linenum) = where_linenum {
-            conditions_checker
-                .add_condition(CheckLineRange::new(normalize_where_linenum_capture(where_linenum)));
+            conditions_checker.add_condition(CheckLineRange::new(normalize_where_linenum_capture(
+                where_linenum,
+            )));
         }
 
         let (remaining, before_match) = if allow_before {
@@ -265,11 +266,10 @@ pub fn return_capture_and_consume(patre: &Lazy<Regex>, haystack: &str) -> (Strin
             let m = caps.get(0).unwrap();
             let captured = caps.get(1).map(|c| c.as_str().to_string());
             let mut end = m.end();
-            if let Some(next) = haystack[end..].chars().next() {
-                if next == '/' || next == '.' {
+            if let Some(next) = haystack[end..].chars().next()
+                && (next == '/' || next == '.') {
                     end += next.len_utf8();
                 }
-            }
             let unconsumed = format!("{}{}", &haystack[..m.start()], &haystack[end..]);
             (unconsumed, captured)
         }
@@ -403,8 +403,14 @@ mod tests {
     #[test]
     fn build_parses_where_linenum_flag_with_slash_separator() {
         let (qualifier, unconsumed) = GrepCommandQualifier::build("wl=5,7/XY");
-        let matching = LineStatus { line_number: 5, ..Default::default() };
-        let non_matching = LineStatus { line_number: 6, ..Default::default() };
+        let matching = LineStatus {
+            line_number: 5,
+            ..Default::default()
+        };
+        let non_matching = LineStatus {
+            line_number: 6,
+            ..Default::default()
+        };
         assert!(qualifier.conditions_checker.check(&matching));
         assert!(!qualifier.conditions_checker.check(&non_matching));
         assert_eq!(unconsumed, "XY");
@@ -413,9 +419,18 @@ mod tests {
     #[test]
     fn build_parses_where_linenum_flag_with_open_ended_range() {
         let (qualifier, unconsumed) = GrepCommandQualifier::build("wl=30../XY");
-        let matching = LineStatus { line_number: 30, ..Default::default() };
-        let later = LineStatus { line_number: 31, ..Default::default() };
-        let non_matching = LineStatus { line_number: 29, ..Default::default() };
+        let matching = LineStatus {
+            line_number: 30,
+            ..Default::default()
+        };
+        let later = LineStatus {
+            line_number: 31,
+            ..Default::default()
+        };
+        let non_matching = LineStatus {
+            line_number: 29,
+            ..Default::default()
+        };
         assert!(qualifier.conditions_checker.check(&matching));
         assert!(qualifier.conditions_checker.check(&later));
         assert!(!qualifier.conditions_checker.check(&non_matching));
@@ -425,8 +440,14 @@ mod tests {
     #[test]
     fn build_where_linenum_stops_before_next_flag_char() {
         let (qualifier, unconsumed) = GrepCommandQualifier::build("wl=30..i");
-        let matching = LineStatus { line_number: 30, ..Default::default() };
-        let non_matching = LineStatus { line_number: 29, ..Default::default() };
+        let matching = LineStatus {
+            line_number: 30,
+            ..Default::default()
+        };
+        let non_matching = LineStatus {
+            line_number: 29,
+            ..Default::default()
+        };
         assert!(qualifier.conditions_checker.check(&matching));
         assert!(!qualifier.conditions_checker.check(&non_matching));
         assert_eq!(qualifier.regex_flags, Some("i".to_string()));

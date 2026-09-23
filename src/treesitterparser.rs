@@ -56,7 +56,10 @@ fn parse_extension_language_mapping_from_toml(contents: &str) -> HashMap<String,
     let Some(tree_sitter) = doc.get("tree_sitter").and_then(|value| value.as_table()) else {
         return mappings;
     };
-    let Some(extensions) = tree_sitter.get("extensions").and_then(|value| value.as_table()) else {
+    let Some(extensions) = tree_sitter
+        .get("extensions")
+        .and_then(|value| value.as_table())
+    else {
         return mappings;
     };
 
@@ -64,12 +67,14 @@ fn parse_extension_language_mapping_from_toml(contents: &str) -> HashMap<String,
         let Some(language_name) = language.as_str() else {
             continue;
         };
-        mappings.insert(extension.trim().to_ascii_lowercase(), language_name.trim().to_string());
+        mappings.insert(
+            extension.trim().to_ascii_lowercase(),
+            language_name.trim().to_string(),
+        );
     }
 
     mappings
 }
-
 
 fn read_extension_language_mapping() -> HashMap<String, String> {
     let Ok(Some(contents)) = config_utilities::read_config_file_contents() else {
@@ -234,18 +239,19 @@ impl LanguageHelper for Helper {
         self.parse_declarations(source_code, node, wanted_declares)
     }
 
-    fn parse_content_to_hashtree(&self, source_code: &[u8]) -> std::collections::HashMap<usize, Parsed> {
+    fn parse_content_to_hashtree(
+        &self,
+        source_code: &[u8],
+    ) -> std::collections::HashMap<usize, Parsed> {
         match self {
             Self::Python(_) => {
-                let mut config = languages::python::build_config().unwrap_or_else(|| {
-                    panic!("python language helper could not build a parser")
-                });
+                let mut config = languages::python::build_config()
+                    .unwrap_or_else(|| panic!("python language helper could not build a parser"));
                 parse_content_to_hashtree_internal(&mut config, source_code)
             }
             Self::Rust(_) => {
-                let mut config = languages::rust::build_config().unwrap_or_else(|| {
-                    panic!("rust language helper could not build a parser")
-                });
+                let mut config = languages::rust::build_config()
+                    .unwrap_or_else(|| panic!("rust language helper could not build a parser"));
                 parse_content_to_hashtree_internal(&mut config, source_code)
             }
         }
@@ -391,13 +397,18 @@ mod tests {
         let source = b"function greet() {\n  echo hi\n}\n";
         let hashtree = parse_content_to_hashtree(source, "sh");
         assert!(!hashtree.is_empty());
-        assert!(hashtree.values().any(|parsed| parsed.as_declarations().is_some()));
-        assert!(hashtree
-            .values()
-            .filter_map(|parsed| parsed.as_declarations())
-            .any(|decl| decl.name == "greet"));
+        assert!(
+            hashtree
+                .values()
+                .any(|parsed| parsed.as_declarations().is_some())
+        );
+        assert!(
+            hashtree
+                .values()
+                .filter_map(|parsed| parsed.as_declarations())
+                .any(|decl| decl.name == "greet")
+        );
     }
-
 
     #[test]
     fn config_mapping_supports_extension_to_language() {
@@ -469,13 +480,7 @@ sh = "zsh"
         assert!(json.contains("\"name\": \"Greeter\""));
         assert!(json.contains("\"type_\": \"c\""));
 
-        for expected_fn_name in [
-            "constructor",
-            "greet",
-            "version",
-            "add",
-            "formatFileName",
-        ] {
+        for expected_fn_name in ["constructor", "greet", "version", "add", "formatFileName"] {
             assert!(json.contains(expected_fn_name));
         }
     }

@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use crate::Search;
+use crate::base::ConditionContext;
 use crate::commands::prelude::*;
 use crate::common::{set_visibles, update_meta_key};
 use crate::constants as c;
@@ -75,6 +76,9 @@ impl CommandActions for CImports {
         };
 
         let total_lines = lines.len();
+        let context = ConditionContext {
+            total_lines: Some(total_lines),
+        };
 
         let hit_hashtree_keys: Vec<usize> = hashtree
             .iter()
@@ -87,7 +91,7 @@ impl CommandActions for CImports {
                     .map(|line_status| {
                         qualifier
                             .conditions_checker
-                            .check_with_total_lines(line_status, total_lines)
+                            .check_with_context(line_status, &context)
                     })
                     .unwrap_or_else(|| qualifier.conditions_checker.conds.is_empty());
 

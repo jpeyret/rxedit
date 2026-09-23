@@ -164,7 +164,9 @@ fn expand_tilde_path(raw: &str) -> PathBuf {
         return PathBuf::from(home).join(stripped);
     }
 
-    if raw == "~" && let Ok(home) = env::var("HOME") {
+    if raw == "~"
+        && let Ok(home) = env::var("HOME")
+    {
         return PathBuf::from(home);
     }
 
@@ -262,8 +264,7 @@ pub fn read_env_config() -> Result<EnvConfig, String> {
 mod tests {
     use super::{
         default_user_config_text, plugin_directory_from_config_contents,
-        plugin_library_search_paths_from_sources,
-        write_default_config_if_missing,
+        plugin_library_search_paths_from_sources, write_default_config_if_missing,
     };
     use std::fs;
     use std::path::PathBuf;

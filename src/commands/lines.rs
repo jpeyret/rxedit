@@ -1,5 +1,7 @@
+use crate::CNoop;
 use crate::Command;
 use crate::base::CheckCondition;
+use crate::base::ConditionContext;
 use crate::commands::prelude::*;
 use crate::common;
 use crate::common::TelemetryEvent;
@@ -16,7 +18,24 @@ pub struct CLines {
 }
 
 pub(crate) fn from_arg(arg: &str, payload: &str, flags: &str) -> (TelemetryEvent, Command) {
+    if let Err(error_message) = common::CheckLineRange::validate_spec(payload) {
+        return (
+            TelemetryEvent::NoopNotification {
+                payload: payload.to_string(),
+                received: arg.to_string(),
+                cause: error_message.clone(),
+            },
+            Command::CNoop(CNoop {
+                text: arg.to_string(),
+                message: error_message,
+            }),
+        );
+    }
+
     let condition = common::CheckLineRange::new(payload.to_string());
+
+    
+
     let allowed_flags = c::commandflags::linesflags();
     let (qualifier, _unconsumed) = GrepCommandQualifier::build_with_flags(flags, allowed_flags);
 
@@ -30,7 +49,6 @@ pub(crate) fn from_arg(arg: &str, payload: &str, flags: &str) -> (TelemetryEvent
         searcher: s_searcher,
         unrecognized: _unconsumed.clone(),
     };
-
     let command = Command::CLines(CLines {
         condition,
         qualifier,
@@ -59,14 +77,17 @@ impl CommandActions for CLines {
         _hashtree: &HashMap<usize, common::Parsed>,
     ) -> Vec<LineStatus> {
         let total_lines = lines.len();
+        let context = ConditionContext {
+            total_lines: Some(total_lines),
+        };
         lines
             .into_iter()
             .map(|mut line_status| {
-                let hit = self.condition.check_with_total_lines(&line_status, total_lines)
+                let hit = self.condition.check_with_context(&line_status, &context)
                     && self
                         .qualifier
                         .conditions_checker
-                        .check_with_total_lines(&line_status, total_lines);
+                        .check_with_context(&line_status, &context);
                 if hit && let Some(key) = &self.qualifier.set_key {
                     line_status.meta.key = key.clone();
                 }

@@ -5,12 +5,19 @@ use core::fmt;
 use regex::Regex;
 use std::any::Any;
 
+/// Runtime facts available while evaluating command conditions during apply.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ConditionContext {
+    /// Total number of lines in the working buffer.
+    pub total_lines: Option<usize>,
+}
+
 /// checks if a source line matches a generic condition
 pub trait CheckCondition: fmt::Debug {
     /// Returns true when the condition matches the given line.
     fn check(&self, line: &LineStatus) -> bool;
-    /// Returns true when the condition matches the given line with knowledge of total lines.
-    fn check_with_total_lines(&self, line: &LineStatus, _total_lines: usize) -> bool {
+    /// Returns true when the condition matches the given line with runtime context.
+    fn check_with_context(&self, line: &LineStatus, _context: &ConditionContext) -> bool {
         self.check(line)
     }
     /// Supports downcasting to concrete condition types.
@@ -19,7 +26,13 @@ pub trait CheckCondition: fmt::Debug {
 
 impl fmt::Debug for CheckConditions {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "CheckConditions({})", self.conds.len())
+        let mut temp: Vec<String> = Vec::new();
+        for cond in &self.conds {
+            temp.push(format!("{:?}", cond));
+        }
+        let joined = temp.join("-");
+
+        write!(f, "CheckConditions({})", joined)
     }
 }
 
@@ -95,14 +108,14 @@ impl CheckConditions {
 
     /// do all conditions match for this line?
     pub fn check(&self, line: &LineStatus) -> bool {
-        self.conds.iter().all(|checker| checker.check(line))
+        self.check_with_context(line, &ConditionContext::default())
     }
 
-    /// do all conditions match for this line, using total line count context?
-    pub fn check_with_total_lines(&self, line: &LineStatus, total_lines: usize) -> bool {
+    /// do all conditions match for this line using runtime context?
+    pub fn check_with_context(&self, line: &LineStatus, context: &ConditionContext) -> bool {
         self.conds
             .iter()
-            .all(|checker| checker.check_with_total_lines(line, total_lines))
+            .all(|checker| checker.check_with_context(line, context))
     }
 }
 
