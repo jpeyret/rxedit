@@ -34,15 +34,15 @@ class Calculator:
 
 ## prepend/append flags
 
-|Name                  | Format             | Example    | Description|
-|----------------------| -------------------| -----------| -----------|
-|insensitive           | i                  | ::i        | case-insentive search|
-|indent_keep           | I                  | ::I        | keep matching line's indentation|
-|fixed_string          | F                  | ::F        | treat search as regular string, not a regex|
-|use_grep_shortcodes   | g                  | ::g        | expands shortcodes (`..`→`.*`, `~~s.`→` +`)|
-|no_use_grep_shortcodes| G                  | ::G        | does not expand grep shortcodes|
-|where_key             | wk=([a-z]+)(?:\.\|$|  ::wk=mykey|  puts an extra criteria to other commands|
-|user_confirm          | u                  | ::u        | user confirmation|
+|Name                  | Format               | Example    | Description|
+|----------------------| ---------------------| -----------| -----------|
+|insensitive           | i                    | ::i        | case-insentive search|
+|indent_keep           | I                    | ::I        | keep matching line's indentation|
+|fixed_string          | F                    | ::F        | treat search as regular string, not a regex|
+|use_grep_shortcodes   | g                    | ::g        | expands shortcodes (`..`→`.*`, `~~s.`→` +`)|
+|no_use_grep_shortcodes| G                    | ::G        | does not expand grep shortcodes|
+|where_key             | wk=([a-z]+)(?:\.\|/\||)  ::wk=myke|/  puts an extra criteria to other commands|
+|user_confirm          | u                    | ::u        | user confirmation|
 ### Notes about commands that modify the text
 
 - Nothing gets saved until you use the `-O` modify in place flag or the `-o <some path>` output flag.

@@ -65,7 +65,7 @@ Note that the lines made visible by `A1` are made visible, but are not set to "m
 
 This add the extra criterion that the lines must be in the specified line range(s).
 
-`rxedit -n pysample.py d::::wl=-10,30-`
+`rxedit -n pysample.py d::::wl=..10,30..`
 
 ```
 000005 def do_init(func):

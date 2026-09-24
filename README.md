@@ -50,7 +50,7 @@ Example:  show all lines containing `TODO` and 2 lines afterwards, using the `A2
 - `u` user confirmation, match by match, on `delete` or `change` commands.
 - `sk=debug.`  Sets `key=debug` on matching lines.  This can be used to constrain further commands using `wk`.
 - `wk=debug.`  In addition to any match conditions, the command will only affect lines with `key=debug` set. 
-- `ln=1-10.` In addition to any match conditions the command will only affect the first 10 lines.
+- `ln=1..10.` In addition to any match conditions the command will only affect the first 10 lines.
 
 Flags are designed to be mixed freely together in any order:  
 
@@ -79,11 +79,14 @@ Options:
   -h, --help [<TOPIC>]                             Print help (optionally for a topic)
   -f, --commands-file <COMMANDS_FILE>              prepend commands from the given file
   -F, --commands-file-after <COMMANDS_FILE_AFTER>  append commands from the given file
-  -o, --output-file <OUTPUT_FILE>                  write buffer to the given output file.  Note that everything gets written, not just the visible lines.
+  -o, --output-file <OUTPUT_FILE>                  write buffer to the given output file.  Note that everything gets written, not
+                                                   just the visible lines.
   -O, --in-place-output                            modify file directly
   -s, --spacer                                     separate blocks of displayed lines
-  -n, --line-number                                show line numbers (those will diverge from the source file change on `delete`, `append` or `prepend` use)
-  -N, --suppress-line-number                       don't show line numbers (those will diverge from the source file change on `delete`, `append` or `prepend` use)
+  -n, --line-number                                show line numbers (those will diverge from the source file change on `delete`,
+                                                   `append` or `prepend` use)
+  -N, --suppress-line-number                       don't show line numbers (those will diverge from the source file change on
+                                                   `delete`, `append` or `prepend` use)
   -v, --verbose                                    
       --debug                                      debug messages
       --dump-json                                  print the parsed hashtree JSON and exit

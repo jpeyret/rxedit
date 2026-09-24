@@ -6,6 +6,13 @@
 # and `more`
 # known topics are discovered by looking for *.md files in src/help
 
+# Actual transformations done:
+# rxedit:        `<command>` by itself in the rxedit --help outputs gets transformed to a markdown [<command>](<prefix>/<command>.md)
+# rxedit:         leading `rxedit ...` examples get prefixed by <br><br> linefeeds to get them to stand out more
+# postformat.py:  wraps basic --help tabular output in a markdown table 
+# postformat.py:  figures out how to resolve the path to the markdown files in links.  command -> .. or . -> commands/ or . sibling?
+
+
 # `$verbose` can also be set to provide some diagnostic info about what it is doing
 
 if [[ -z "$BASH_VERSION" ]]; then
@@ -193,15 +200,14 @@ generate_topic(){  # generate given topic
         # done
     fi
 
-    comm_show="macro::$dn_macros/_show.rxi"
-    comm_change="macro::$dn_macros/_change.rxi"
+    comm_show="$dn_macros/_show.rxi"
 
     # test for a specific change macro
     macro=$dn_macros/$topic.change.rxi
     if [[ -f $macro ]]; then
-        comm_change="macro::$macro"
+        comm_change="$macro"
     else
-        comm_change="macro::$dn_macros/_change.rxi"
+        comm_change="$dn_macros/_change.rxi"
     fi
 
 
@@ -210,16 +216,25 @@ generate_topic(){  # generate given topic
     #the topic may need custom hide which you would put in a pre-defined macro.
     macro=$dn_macros/$topic.less.rxi
     if [[ ! -f "$macro" ]]; then
-        comm_less='less::`'$topic'`'
+        # this is a bit tricky because a "`" backtick means something both to markdown and to the shell
+        comm_less1="less::\`"$topic"\`"
+        if [[ -n "$verbose" ]]; then
+            >&2 printf '👆 %-40s 👉 %s \n' "\$topic" "$topic"
+            >&2 printf '\n🔬 %-40s 👉%s👈 \n' "\$comm_less1" "$comm_less1"
+            # return
+        fi
+        comm_less2=
     else
-        comm_less="macro::$macro"
+        comm_less1="macro"
+        comm_less2="$macro"
     fi
 
-    #do we have a custom post-processor to run?
-    comm_postchange=
+    #do we have a custom post-processor to run?  if not, point to a macro file that does nothing
+    #as it's easier to generate a command line with `macro $somepath` that way
+    comm_postchange=$dn_macros/donothing.rxi
     macro=$dn_macros/$topic.postchange.rxi
     if [[ -f $macro ]]; then
-        comm_postchange="macro::$macro"
+        comm_postchange="$macro"
         if [[ -n "$verbose" ]]; then
             printf '👆 %-60s 👉 %s \n' "\$comm_postchange" "$comm_postchange"
         fi
@@ -234,20 +249,22 @@ generate_topic(){  # generate given topic
     fi
 
 
-
     #first pass: rxedit just writes the transformed md to the temp directory
     pa_out="$dn_worktemp/$topic.md"
 
     if [[ -n "$verbose" ]]; then
-        echo 🔬 rxedit $pa_help "$comm_show" "$comm_less" "$comm_change" "$comm_postchange" -o $pa_out 
+        echo 🔬 rxedit $pa_help $comm_show "$comm_less1" "$comm_less2" $comm_change $comm_postchange -o $pa_out 
     fi
 
-    if rxedit $pa_help "$comm_show" "$comm_less" "$comm_change" "$comm_postchange" -o $pa_out; then
+    # one of the easier to troubleshoot this is to add an explain at the end, and `2>&1 | tee <somefile.debug>` return without further processing
+    # you can also cut out parts of it to see like just `rxedit $pa_help macro $comm_show "$comm_less1"` to see where errors happen.
+
+    if rxedit $pa_help macro $comm_show "$comm_less1" $comm_less2 macro $comm_change macro $comm_postchange -o $pa_out; then
         if [[ -n "$verbose" ]]; then
             printf "\n✅\n"
         fi
     else
-        echo " ❌ error @ rxedit $pa_help "$comm_show" "$comm_less" "$comm_change" "$comm_postchange" -o $pa_out " 
+        >&2 echo " ❌ error for rxedit $topic " 
         return 1
     fi
 

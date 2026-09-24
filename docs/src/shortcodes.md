@@ -18,7 +18,7 @@ They facilitate some common regex use cases and avoid clashing with shell substi
 |less_than        | ~~lt.   | <   | matches `<`|
 |left_parenthesis | ~~pl.   | \(  | matches `(`|
 |right_parenthesis| ~~pr.   | \)  | matches `)`|
-|field_separator  | ~~sep.  | ::  | matches `::`|
+|field_separator  | ~~~     | ::  | matches `::`|
 |colon            | ~~colon.| :   | matches `:`|
 
 ##### Remarks:
