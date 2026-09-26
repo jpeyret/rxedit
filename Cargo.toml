@@ -1,6 +1,6 @@
 [package]
 name = "rxedit"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 license = "MIT"
 description = "A folding batch editor for source code discovery and editing, XEDIT/sed/grep-inspired, tree-sitter-aware"

@@ -267,9 +267,10 @@ pub fn return_capture_and_consume(patre: &Lazy<Regex>, haystack: &str) -> (Strin
             let captured = caps.get(1).map(|c| c.as_str().to_string());
             let mut end = m.end();
             if let Some(next) = haystack[end..].chars().next()
-                && (next == '/' || next == '.') {
-                    end += next.len_utf8();
-                }
+                && (next == '/' || next == '.')
+            {
+                end += next.len_utf8();
+            }
             let unconsumed = format!("{}{}", &haystack[..m.start()], &haystack[end..]);
             (unconsumed, captured)
         }

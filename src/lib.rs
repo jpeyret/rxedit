@@ -661,22 +661,23 @@ fn expand_macros(args: &[String]) -> Vec<String> {
         let current = &args[index];
 
         if matches!(command_file_arg_policy(current), FileArgPolicy::Yes)
-            && let Some(path) = args.get(index + 1).map(String::as_str) {
-                if !std::path::Path::new(path).is_file() {
+            && let Some(path) = args.get(index + 1).map(String::as_str)
+        {
+            if !std::path::Path::new(path).is_file() {
+                fatal_bad_file_arg(command_prefix::MACROS, path);
+            }
+
+            match load_macro_file(path) {
+                Ok(entries) => {
+                    res.extend(entries);
+                }
+                Err(_) => {
                     fatal_bad_file_arg(command_prefix::MACROS, path);
                 }
-
-                match load_macro_file(path) {
-                    Ok(entries) => {
-                        res.extend(entries);
-                    }
-                    Err(_) => {
-                        fatal_bad_file_arg(command_prefix::MACROS, path);
-                    }
-                }
-                index += 2;
-                continue;
             }
+            index += 2;
+            continue;
+        }
         res.push(current.to_string());
         index += 1;
     }

@@ -34,8 +34,6 @@ pub(crate) fn from_arg(arg: &str, payload: &str, flags: &str) -> (TelemetryEvent
 
     let condition = common::CheckLineRange::new(payload.to_string());
 
-    
-
     let allowed_flags = c::commandflags::linesflags();
     let (qualifier, _unconsumed) = GrepCommandQualifier::build_with_flags(flags, allowed_flags);
 

@@ -3,7 +3,6 @@ use crate::commands::prelude::*;
 use crate::common;
 use crate::common::LineStatus;
 
-
 #[derive(Debug)]
 /// Shows a range of lines
 pub struct CMacro;

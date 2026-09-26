@@ -285,11 +285,13 @@ fn parse_segment(segment: &str) -> ParsedSegment {
         return ParsedSegment::Line(value);
     }
 
-    if segment.starts_with('-') && segment.len() > 1
+    if segment.starts_with('-')
+        && segment.len() > 1
         && let Ok(offset) = segment[1..].parse::<usize>()
-            && offset > 0 {
-                return ParsedSegment::DeferredLine(offset);
-            }
+        && offset > 0
+    {
+        return ParsedSegment::DeferredLine(offset);
+    }
 
     ParsedSegment::None
 }
