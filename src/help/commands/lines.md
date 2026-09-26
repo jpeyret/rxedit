@@ -26,18 +26,20 @@ Show lines within the given ranges.  Similar to `head - <number>` or `tail - <nu
 - negative indexing means count from the end, with -1 being the last line, -2 next to last, similar to Python's use
 - `h` and `t` act like `head` and `tail` command, while `A`, `B`, `C` behave like they do in `grep` 
 
+#### Examples
 
-| Specifier     | Meaning                                |
-| ------------- | -------------------------------------- |
-| lines::2..5   | skip line 1, then display up to line 5 |
-| lines::-1     | last line                              |
-| lines::t5     | last 5 lines                           |
-| lines::-5..   | last 5 lines                           |
-| lines::h3     | first 3 lines                          |
-| lines::-5..-3 | same as tail -5, but skip the last 2   |
-| lines::30C5   | display lines 25-35                    |
-| lines::..2,t5 | first 2, last 5                        |
-| lines::..     | all lines                              |
+Specifier      Meaning                                
+-------------  -------------------------------------- 
+lines::2..5    skip line 1, then display up to line 5 
+lines::-1      last line                              
+lines::t5      last 5 lines                           
+lines::-5..    last 5 lines                           
+lines::h3      first 3 lines                          
+lines::-5..-3  same as tail -5, but skip the last 2   
+lines::30C5    display lines 25-35                    
+lines::..2,t5  first 2, last 5                        
+lines::..      all lines                              
+
 
 #### Sample use of line ranges in other commands:
 
