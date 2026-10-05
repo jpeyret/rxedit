@@ -68,7 +68,7 @@ impl RunResult {
                     success: output.status.success(),
                     dbg_stderror: String::from_utf8_lossy(&output.stderr).to_string(),
                     stdout: linesout,
-                    numlines: numlines,
+                    numlines,
                 }
             }
             Err(e) => Self {
@@ -266,7 +266,7 @@ mod tests {
         let out = run_cli(&[PY_SAMPLE, "d::add"]);
         let res = RunResult::build(&out);
 
-        assert!(res.success == true, "{}", res.dbg_stderror);
+        assert!(res.success, "{}", res.dbg_stderror);
         assert!(res.numlines == 1, "len:{}", res.numlines);
 
         assert!(
@@ -413,7 +413,7 @@ mod tests {
         let out = run_cli(&[PY_SAMPLE, "d::add::A2"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "{}", res.dbg_stderror);
+        assert!(res.success, "{}", res.dbg_stderror);
 
         assert_eq!(res.numlines, 3, "stdout={}", res.dbg_stdout);
         assert!(
@@ -438,7 +438,7 @@ mod tests {
         let out = run_cli(&[PY_SAMPLE, "d::add::B2"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "{}", res.dbg_stderror);
+        assert!(res.success, "{}", res.dbg_stderror);
 
         assert_eq!(res.numlines, 3, "stdout={}", res.dbg_stdout);
         assert!(
@@ -454,7 +454,7 @@ mod tests {
         let out = run_cli(&[PY_SAMPLE, "m::append::o"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "{}", res.dbg_stderror);
+        assert!(res.success, "{}", res.dbg_stderror);
 
         let has_add_owner = res
             .stdout
@@ -479,7 +479,7 @@ mod tests {
         let out = run_cli(&[PY_SAMPLE, "m::append::o"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "{}", res.dbg_stderror);
+        assert!(res.success, "{}", res.dbg_stderror);
 
         let has_multiply_sig_line_1 = res
             .stdout
@@ -664,7 +664,7 @@ mod tests {
         let out = run_cli(&[PY_SAMPLE, "d::", "and::add::A2"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "stderr:\n{}", res.dbg_stderror);
+        assert!(res.success, "stderr:\n{}", res.dbg_stderror);
 
         let exp = "a + b";
         assert!(
@@ -688,7 +688,7 @@ mod tests {
         let out = run_cli(&[PY_SAMPLE, "d::add::b"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "stderr:\n{}", res.dbg_stderror);
+        assert!(res.success, "stderr:\n{}", res.dbg_stderror);
 
         let exp = "result_add";
         assert!(
@@ -711,7 +711,7 @@ mod tests {
         let out = run_cli(&[RS_SAMPLE, "d::make_message::b"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "stderr:\n{}", res.dbg_stderror);
+        assert!(res.success, "stderr:\n{}", res.dbg_stderror);
 
         assert!(
             res.stdout
@@ -737,7 +737,7 @@ mod tests {
         let out = run_cli(&[RS_SAMPLE, "a::", "delete::print_"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "stderr:\n{}", res.dbg_stderror);
+        assert!(res.success, "stderr:\n{}", res.dbg_stderror);
 
         // Verify that lines with "print_" are not in the output
         assert!(
@@ -759,7 +759,7 @@ mod tests {
         let out = run_cli(&[RS_SAMPLE, "invert"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "stderr:\n{}", res.dbg_stderror);
+        assert!(res.success, "stderr:\n{}", res.dbg_stderror);
 
         let expected_lines = fs::read_to_string(RS_SAMPLE)
             .expect("cannot read RS_SAMPLE")
@@ -778,7 +778,7 @@ mod tests {
         let out = run_cli(&[RS_SAMPLE, "a::greet", "invert"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "stderr:\n{}", res.dbg_stderror);
+        assert!(res.success, "stderr:\n{}", res.dbg_stderror);
 
         assert!(
             res.numlines > 0,
@@ -800,7 +800,7 @@ mod tests {
         let out = run_cli(&[RS_SAMPLE, "a::", "delete::GREET::i"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "stderr:\n{}", res.dbg_stderror);
+        assert!(res.success, "stderr:\n{}", res.dbg_stderror);
 
         // Verify that lines with "greet" or "GREET" are deleted
         assert!(
@@ -819,7 +819,7 @@ mod tests {
         let out = run_cli(&["-n", RS_SAMPLE, "a::", "delete::print_"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "stderr:\n{}", res.dbg_stderror);
+        assert!(res.success, "stderr:\n{}", res.dbg_stderror);
 
         // With -n flag, lines should have line numbers
         // Check that at least some lines have the line number format (6 digits + space)
@@ -842,7 +842,7 @@ mod tests {
         let out = run_cli(&["--help", "delete"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "stderr:\n{}", res.dbg_stderror);
+        assert!(res.success, "stderr:\n{}", res.dbg_stderror);
 
         let stdout = res.dbg_stdout.to_lowercase();
         assert!(
@@ -858,7 +858,7 @@ mod tests {
         let out = run_cli(&["--help", "change"]);
 
         let res = RunResult::build(&out);
-        assert!(res.success == true, "stderr:\n{}", res.dbg_stderror);
+        assert!(res.success, "stderr:\n{}", res.dbg_stderror);
 
         let stdout = res.dbg_stdout.to_lowercase();
         assert!(

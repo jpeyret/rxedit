@@ -143,41 +143,6 @@ fn join_indents(lines: Vec<String>, sep: &str) -> String {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::CheckLineRange;
-    use crate::common::Range;
-    use std::collections::HashSet;
-
-    #[test]
-    fn check_line_range_display_includes_all_parse_time_state() {
-        let checker = CheckLineRange {
-            where_linenum: "..2,-3..".to_string(),
-            ranges: vec![Range::new(1, 2)],
-            deferred_end_ranges: Vec::new(),
-            hashset: HashSet::from([43, 44, 45]),
-            deferred_end: HashSet::from([3]),
-            for_telemetry: "???".to_string(),
-        };
-
-        assert_eq!(format!("{}", checker), "???");
-    }
-
-    #[test]
-    fn check_line_range_display_handles_empty_fields() {
-        let checker = CheckLineRange {
-            where_linenum: String::new(),
-            ranges: Vec::new(),
-            deferred_end_ranges: Vec::new(),
-            hashset: HashSet::new(),
-            deferred_end: HashSet::new(),
-            for_telemetry: "???".to_string(),
-        };
-
-        assert_eq!(format!("{}", checker), "???");
-    }
-}
-
 impl fmt::Display for DeclarationsCommandQualifier {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut tmp = Vec::new();
@@ -344,5 +309,40 @@ impl fmt::Display for TelemetryEvent {
                 )
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::CheckLineRange;
+    use crate::common::Range;
+    use std::collections::HashSet;
+
+    #[test]
+    fn check_line_range_display_includes_all_parse_time_state() {
+        let checker = CheckLineRange {
+            where_linenum: "..2,-3..".to_string(),
+            ranges: vec![Range::new(1, 2)],
+            deferred_end_ranges: Vec::new(),
+            hashset: HashSet::from([43, 44, 45]),
+            deferred_end: HashSet::from([3]),
+            for_telemetry: "???".to_string(),
+        };
+
+        assert_eq!(format!("{}", checker), "???");
+    }
+
+    #[test]
+    fn check_line_range_display_handles_empty_fields() {
+        let checker = CheckLineRange {
+            where_linenum: String::new(),
+            ranges: Vec::new(),
+            deferred_end_ranges: Vec::new(),
+            hashset: HashSet::new(),
+            deferred_end: HashSet::new(),
+            for_telemetry: "???".to_string(),
+        };
+
+        assert_eq!(format!("{}", checker), "???");
     }
 }

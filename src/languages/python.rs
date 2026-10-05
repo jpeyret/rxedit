@@ -149,13 +149,12 @@ fn parse_declaration_python(
             // Walk backward to find a comment node that belongs to the body gap.
             let mut node = body_node;
             let startnode = loop {
-                if let Some(prev) = &node.prev_named_sibling() {
-                    if prev.grammar_name() == treesitter_::FIELD_COMMENT
-                        && prev.start_position().row > start_line
-                    {
-                        node = *prev;
-                        continue;
-                    }
+                if let Some(prev) = &node.prev_named_sibling()
+                    && prev.grammar_name() == treesitter_::FIELD_COMMENT
+                    && prev.start_position().row > start_line
+                {
+                    node = *prev;
+                    continue;
                 }
                 break node;
             };

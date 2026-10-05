@@ -253,8 +253,8 @@ mod tests {
     use std::sync::{LazyLock, Mutex};
 
     use super::{
-        AppConfig, LineStatus, MetaInfo, get_global_config, reset_global_state_for_tests,
-        set_global_config,
+        AppConfig, LineStatus, MetaInfo, calc_indent, get_global_config,
+        reset_global_state_for_tests, set_global_config,
     };
 
     static TEST_GLOBAL_CONFIG_LOCK: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
@@ -319,5 +319,89 @@ mod tests {
         assert!(!reset.verbose);
         assert!(!reset.debug);
         assert_eq!(reset.file_path, "");
+    }
+
+    #[test]
+    fn calc_indent_empty_string() {
+        let result = calc_indent("");
+        assert_eq!(result, -1);
+    }
+
+    #[test]
+    fn calc_indent_no_indentation() {
+        let result = calc_indent("hello world");
+        assert_eq!(result, 0);
+    }
+
+    #[test]
+    fn calc_indent_single_space() {
+        let result = calc_indent(" hello");
+        assert_eq!(result, 1);
+    }
+
+    #[test]
+    fn calc_indent_multiple_spaces() {
+        let result = calc_indent("    hello");
+        assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn calc_indent_single_tab() {
+        let result = calc_indent("\thello");
+        assert_eq!(result, 1);
+    }
+
+    #[test]
+    fn calc_indent_multiple_tabs() {
+        let result = calc_indent("\t\t\thello");
+        assert_eq!(result, 3);
+    }
+
+    #[test]
+    fn calc_indent_mixed_tabs_and_spaces() {
+        let result = calc_indent("\t  \thello");
+        assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn calc_indent_only_whitespace() {
+        let result = calc_indent("    ");
+        assert_eq!(result, -1);
+    }
+
+    #[test]
+    fn calc_indent_only_tabs() {
+        let result = calc_indent("\t\t");
+        assert_eq!(result, -1);
+    }
+
+    #[test]
+    fn calc_indent_newline_as_leading_whitespace() {
+        let result = calc_indent("\n hello");
+        assert_eq!(result, 2);
+    }
+
+    #[test]
+    fn calc_indent_carriage_return_as_leading_whitespace() {
+        let result = calc_indent("\r hello");
+        assert_eq!(result, 2);
+    }
+
+    #[test]
+    fn calc_indent_mixed_whitespace_types() {
+        let result = calc_indent(" \t \n \r hello");
+        assert_eq!(result, 7);
+    }
+
+    #[test]
+    fn calc_indent_large_indentation() {
+        let result = calc_indent("                                   code");
+        assert_eq!(result, 35);
+    }
+
+    #[test]
+    fn calc_indent_with_leading_zeros_like_string() {
+        let result = calc_indent("    000123");
+        assert_eq!(result, 4);
     }
 }
