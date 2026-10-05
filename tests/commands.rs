@@ -274,7 +274,11 @@ mod tests {
             "stdout={}",
             res.dbg_stdout
         );
-        assert!(res.stdout[0].ends_with("int:"), "stdout={}", res.dbg_stdout);
+        assert!(
+            res.stdout[0].contains("# inline comment"),
+            "stdout={}",
+            res.dbg_stdout
+        );
     }
 
     #[test]

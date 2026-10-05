@@ -88,6 +88,13 @@ fn cli_pycomplex() {
 }
 
 #[test]
+fn cli_pyinlinecomments() {
+    assert_case("pyinlinecomments.toml");
+}
+
+
+
+#[test]
 fn cli_pyfixed() {
     assert_case("pyfixed.toml");
 }

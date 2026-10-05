@@ -139,20 +139,22 @@ fn parse_declaration_python(
     let name = node_text(source_code, name_node)?;
     let start_line = node.start_position().row;
 
+    // Python can place a standalone comment between the signature and body.
+    // We only count comment gaps that actually start after the declaration line.
     let lines_body = node
         .child_by_field_name(treesitter_::FIELD_BODY)
         .map(|body_node| {
-            // at least in python, a comment sits between the identifier/parameters and the body
             let end = body_node.end_position().row;
 
+            // Walk backward to find a comment node that belongs to the body gap.
             let mut node = body_node;
             let startnode = loop {
                 if let Some(prev) = &node.prev_named_sibling() {
-                    if prev.grammar_name() == treesitter_::FIELD_COMMENT {
+                    if prev.grammar_name() == treesitter_::FIELD_COMMENT
+                        && prev.start_position().row > start_line
+                    {
                         node = *prev;
                         continue;
-                    } else {
-                        break node;
                     }
                 }
                 break node;
@@ -160,6 +162,8 @@ fn parse_declaration_python(
             let start = startnode.start_position().row;
             (start, end)
         });
+
+    // The declaration signature ends on the line before the body starts.
 
     let signature_end_line = match lines_body {
         Some((body_start, _)) => match node.kind() {

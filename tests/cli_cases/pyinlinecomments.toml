@@ -1,0 +1,6 @@
+file_path = "src/help/pysample.py"
+
+commands = [ "d::"]
+
+wanted=["class Calculator:","def add(","def __init__("]
+unwanted=[]
