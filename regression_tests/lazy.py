@@ -345,18 +345,31 @@ class Best_(Base):
                    - d::
                    ...
             """
+
+            di_var = {}
+            for envname in "srcdir_rs diroisamples".split():
+                to_ = os.environ[envname]
+                di_var[f"${envname}"] = to_
+
+
             commands = []
             for command in rawconfig["commands"]:
                 if isinstance(command,dict) and len(command) == 1:
+
                     k, v = next(iter(command.items()))
                     if k.endswith(":") and v is None:
-                        command = k.rstrip(":")
-                        commands.append(command)
+                        tmp = k.rstrip(":")
                     else:
-                        commands.append(command)
+                        tmp = command
                     pass
                 else:
-                    commands.append(command)
+                    tmp = command
+
+                #post cleanup - we may also need to substitute variables on commands
+                command = tmp
+                for from_, to_ in di_var.items():
+                    command = command.replace(from_, to_)
+                commands.append(command)
 
             rawconfig["commands"] = commands
             if "env" not in rawconfig:
@@ -364,10 +377,8 @@ class Best_(Base):
 
             file_path = rawconfig.pop(co.file_path) or getattr(self.file_path,None)
             if "$" in file_path:
-                for envname in "srcdir_rs bme_home _diroiexplore diroisamples".split():
-                    to_ = os.environ[envname]
-                    from_ = f"${envname}"
-                    file_path = file_path.replace(from_,to_)
+                for from_, to_ in di_var.items():
+                    file_path = file_path.replace(from_, to_)
 
             pa = Path(file_path)
             assert pa.exists(), f"{pa} not found"
@@ -676,6 +687,17 @@ class Test_DeleteBlanksToo(Best_):
 
 class Test_DeleteBlanksTooStopAtDelete(Best_):
     "blank lines don't get deleted, at least in the body of something, if stopping at delete"
+
+
+class Test_PrependFileIndent(Best_):
+    "prepend file with indent"
+
+class Test_PrependFile(Best_):
+    "prepend wo indent"
+
+class Test_AppendFile(Best_):
+    "append wo indent"
+
 
 TU_BASE_CLASSES = (Base,Best_)
 

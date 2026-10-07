@@ -315,6 +315,7 @@ impl Command {
     }
 
     /// Does this command consume a following file path argument?
+    /// 104rus001xedfp022app001supportfileinclusionwv020 - this looks like dead code, never called.💀
     pub fn accepts_file_arg(&self) -> bool {
         matches!(
             self.get_constant_definition().file_arg_policy,
@@ -524,6 +525,18 @@ pub fn make_command(arg: &str) -> Command {
         [command_prefix::IMPORTS] | [command_prefix::IMPORTS1] => {
             commands::imports::from_import(DEFAULT_ON_EMPTY_PATTERN, "", arg)
         }
+        [command_prefix::PREPENDFILE, pattern, content, flags] => {
+            commands::appendprepend::from_prependfile(pattern, content, flags)
+        }
+        [command_prefix::PREPENDFILE1, pattern, content, flags] => {
+            commands::appendprepend::from_prependfile(pattern, content, flags)
+        }
+        [command_prefix::PREPENDFILE, pattern, content] => {
+            commands::appendprepend::from_prependfile(pattern, content, "")
+        }
+        [command_prefix::PREPENDFILE1, pattern, content] => {
+            commands::appendprepend::from_prependfile(pattern, content, "")
+        }
         [prefix, pattern, content, flags]
             if matches!(*prefix, command_prefix::PREPEND | command_prefix::PREPEND1) =>
         {
@@ -533,6 +546,18 @@ pub fn make_command(arg: &str) -> Command {
             if matches!(*prefix, command_prefix::PREPEND | command_prefix::PREPEND1) =>
         {
             commands::appendprepend::from_prepend(pattern, content, "")
+        }
+        [command_prefix::APPENDFILE, pattern, content, flags] => {
+            commands::appendprepend::from_appendfile(pattern, content, flags)
+        }
+        [command_prefix::APPENDFILE1, pattern, content, flags] => {
+            commands::appendprepend::from_appendfile(pattern, content, flags)
+        }
+        [command_prefix::APPENDFILE, pattern, content] => {
+            commands::appendprepend::from_appendfile(pattern, content, "")
+        }
+        [command_prefix::APPENDFILE1, pattern, content] => {
+            commands::appendprepend::from_appendfile(pattern, content, "")
         }
         [prefix, pattern, content, flags]
             if matches!(*prefix, command_prefix::APPEND | command_prefix::APPEND1) =>
@@ -619,7 +644,17 @@ fn preformat(
 }
 
 fn command_file_arg_policy(arg: &str) -> FileArgPolicy {
-    if arg == command_prefix::MACROS {
+    let fields = split_command_fields(arg);
+    let first = fields.first().map(String::as_str).unwrap_or(arg);
+
+    if matches!(
+        first,
+        command_prefix::MACROS
+            | command_prefix::PREPENDFILE
+            | command_prefix::PREPENDFILE1
+            | command_prefix::APPENDFILE
+            | command_prefix::APPENDFILE1
+    ) {
         FileArgPolicy::Yes
     } else {
         FileArgPolicy::No
@@ -653,6 +688,28 @@ fn load_macro_file(path: &str) -> Result<Vec<String>, String> {
 }
 
 // load commands from files pointed at by dedicated macro + filepath arguments.
+fn expand_file_arg_command(command: &str, path: &str) -> String {
+    let mut fields = split_command_fields(command);
+    if fields.len() < 2 {
+        return format!("{}::{}", command, path.replace("::", "~::"));
+    }
+
+    let prefix = fields.remove(0);
+    let pattern = fields.remove(0);
+    let flags = if fields.is_empty() {
+        String::new()
+    } else {
+        fields.join("::")
+    };
+
+    let escaped_path = path.replace("::", "~::");
+    let mut rebuilt = vec![prefix, pattern, escaped_path];
+    if !flags.is_empty() {
+        rebuilt.push(flags);
+    }
+    rebuilt.join("::")
+}
+
 fn expand_macros(args: &[String]) -> Vec<String> {
     let mut res = Vec::new();
     let mut index = 0;
@@ -663,16 +720,34 @@ fn expand_macros(args: &[String]) -> Vec<String> {
         if matches!(command_file_arg_policy(current), FileArgPolicy::Yes)
             && let Some(path) = args.get(index + 1).map(String::as_str)
         {
-            if !std::path::Path::new(path).is_file() {
-                fatal_bad_file_arg(command_prefix::MACROS, path);
-            }
+            let current_fields = split_command_fields(current);
+            let command_name = current_fields
+                .first()
+                .map(String::as_str)
+                .unwrap_or(current);
 
-            match load_macro_file(path) {
-                Ok(entries) => {
-                    res.extend(entries);
+            match command_name {
+                command_prefix::MACROS => {
+                    if !std::path::Path::new(path).is_file() {
+                        fatal_bad_file_arg(command_name, path);
+                    }
+                    match load_macro_file(path) {
+                        Ok(entries) => {
+                            res.extend(entries);
+                        }
+                        Err(_) => {
+                            fatal_bad_file_arg(command_name, path);
+                        }
+                    }
                 }
-                Err(_) => {
-                    fatal_bad_file_arg(command_prefix::MACROS, path);
+                command_prefix::PREPENDFILE
+                | command_prefix::PREPENDFILE1
+                | command_prefix::APPENDFILE
+                | command_prefix::APPENDFILE1 => {
+                    res.push(expand_file_arg_command(current, path));
+                }
+                _ => {
+                    fatal_bad_file_arg(command_name, path);
                 }
             }
             index += 2;
@@ -688,18 +763,7 @@ fn expand_macros(args: &[String]) -> Vec<String> {
 /// Converts command argument strings into executable commands.
 pub fn commands_factory(args: &[String]) -> Vec<Command> {
     let args = expand_macros(args);
-    args.iter()
-        .map(|arg| {
-            if let Some(message) = arg.strip_prefix("__rxedit_macro_error__") {
-                Command::CNoop(CNoop {
-                    text: arg.to_string(),
-                    message: format!("macro file error: {}", message),
-                })
-            } else {
-                make_command(arg)
-            }
-        })
-        .collect()
+    args.iter().map(|arg| make_command(arg)).collect()
 }
 
 #[cfg(test)]
@@ -963,6 +1027,64 @@ mod tests {
     }
 
     #[test]
+    fn make_command_prependfile_dispatches_to_inserter() {
+        use crate::Command;
+        use crate::make_command;
+
+        let temp_path =
+            std::env::temp_dir().join(format!("rxedit_prependfile_{}_test", std::process::id(),));
+        std::fs::write(&temp_path, "hello\n").unwrap();
+
+        let arg = format!("prependfile::foo::{}", temp_path.display());
+        let cmd = make_command(&arg);
+        assert!(matches!(cmd, Command::CInserter(_)));
+
+        let _ = std::fs::remove_file(&temp_path);
+    }
+
+    #[test]
+    fn make_command_appendfile_dispatches_to_inserter() {
+        use crate::Command;
+        use crate::make_command;
+
+        let temp_path =
+            std::env::temp_dir().join(format!("rxedit_appendfile_{}_test", std::process::id(),));
+        std::fs::write(&temp_path, "hello\n").unwrap();
+
+        let arg = format!("appendfile::foo::{}", temp_path.display());
+        let cmd = make_command(&arg);
+        assert!(matches!(cmd, Command::CInserter(_)));
+
+        let _ = std::fs::remove_file(&temp_path);
+    }
+
+    #[test]
+    fn commands_factory_expands_appendfile_next_argument() {
+        use crate::Command;
+        use crate::commands_factory;
+        use std::fs;
+
+        let dir = std::env::temp_dir().join(format!(
+            "rxedit_appendfile_factory_{}_{}",
+            std::process::id(),
+            std::thread::current().name().unwrap_or("test")
+        ));
+        let _ = fs::create_dir_all(&dir);
+        let include_path = dir.join("include.txt");
+        fs::write(&include_path, "hello\n").unwrap();
+
+        let commands = commands_factory(&[
+            "appendfile::foo::I".to_string(),
+            include_path.to_string_lossy().to_string(),
+        ]);
+
+        assert!(matches!(commands.as_slice(), [Command::CInserter(_)]));
+
+        let _ = fs::remove_file(&include_path);
+        let _ = fs::remove_dir(&dir);
+    }
+
+    #[test]
     fn commands_factory_expands_separate_macro_file_argument() {
         use crate::Command;
         use crate::commands_factory;
@@ -990,20 +1112,6 @@ mod tests {
 
         let _ = fs::remove_file(&macro_path);
         let _ = fs::remove_dir(&dir);
-    }
-
-    #[test]
-    fn commands_factory_treats_legacy_macro_path_syntax_as_noop() {
-        use crate::Command;
-        use crate::commands_factory;
-
-        let commands = commands_factory(&[
-            "macro::/tmp/not-a-real-macro-file.rxi".to_string(),
-            "all".to_string(),
-        ]);
-
-        assert!(matches!(commands[0], Command::CNoop(_)));
-        assert!(matches!(commands[1], Command::CAll(_)));
     }
 
     #[test]

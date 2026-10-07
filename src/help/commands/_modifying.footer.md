@@ -1,3 +1,5 @@
+
+
 ### Notes about commands that modify the text
 
 - Nothing gets saved until you use the `-O` modify in place flag or the `-o <some path>` output flag.

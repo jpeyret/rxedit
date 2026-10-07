@@ -393,3 +393,24 @@ Test_DeleteBlanksTooStopAtDelete:
     - "d::tests::bwt=m"
     # delete everything visible, so no blank lines should be left
     - delete
+
+Test_PrependFileIndent:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - d::__init__::
+    - prependfile::init::I
+    - $diroisamples/header_for_init_functions.py
+
+Test_PrependFile:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - d::__init__::
+    - prependfile::init
+    - $diroisamples/header_for_init_functions.py
+
+Test_AppendFile:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - d::__init__::
+    - appendfile::init
+    - $diroisamples/header_for_init_functions.py

@@ -47,6 +47,10 @@ pub mod command_prefix {
     pub const PREPEND: &str = "prepend";
     /// Long command: append.
     pub const APPEND: &str = "append";
+    /// Long command: prepend file.
+    pub const PREPENDFILE: &str = "prependfile";
+    /// Long command: append file.
+    pub const APPENDFILE: &str = "appendfile";
 
     /// Short command: more.
     pub const MORE1: &str = "m";
@@ -72,6 +76,10 @@ pub mod command_prefix {
     pub const PREPEND1: &str = "pre";
     /// Short command: append.
     pub const APPEND1: &str = "app";
+    /// Short command: prepend file.
+    pub const PREPENDFILE1: &str = "pref";
+    /// Short command: append file.
+    pub const APPENDFILE1: &str = "appf";
 }
 
 /// Tree-sitter field names used by grammar helpers.

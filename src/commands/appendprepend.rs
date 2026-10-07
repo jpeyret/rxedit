@@ -18,6 +18,16 @@ pub fn get_constant_definition() -> CommandDefinition {
     }
 }
 
+/// Returns static definition metadata for this command.
+pub fn get_constant_definition_appendprependfile() -> CommandDefinition {
+    CommandDefinition {
+        name: "appendfile",
+        mutates_line_text: true,
+        file_arg_policy: FileArgPolicy::Yes,
+        flags: commandflags::insert_flags(),
+    }
+}
+
 #[derive(Debug)]
 /// Insert strategy for prepend/append commands.
 pub enum AppendPrepend {
@@ -123,12 +133,22 @@ fn apply_indent(content: &str, indent_spaces: i32) -> String {
     }
 }
 
-fn inserted_line_text(base_content: &str, matched_line: &str, indent_keep: bool) -> String {
+fn inserted_line_text(base_content: &str, matched_line: &str, indent_keep: bool) -> Vec<String> {
+    let mut inserted = base_content.lines().map(str::to_owned).collect::<Vec<_>>();
     if !indent_keep {
-        return base_content.to_string();
+        return inserted;
     }
+
     let indent = calc_indent(matched_line);
-    apply_indent(base_content, indent.max(0))
+    if indent <= 0 {
+        return inserted;
+    }
+
+    for line in &mut inserted {
+        *line = apply_indent(line, indent.max(0));
+    }
+
+    inserted
 }
 
 fn from_insert(pattern: &str, content: &str, flags: &str, insert_before: bool) -> Command {
@@ -196,6 +216,44 @@ pub(crate) fn from_append(pattern: &str, content: &str, flags: &str) -> Command 
     from_insert(pattern, content, flags, false)
 }
 
+pub(crate) fn from_prependfile(pattern: &str, filename: &str, flags: &str) -> Command {
+    let content = match std::fs::read_to_string(filename) {
+        Ok(content) => content,
+        Err(err) => {
+            append_telemetry(TelemetryEvent::NoopNotification {
+                payload: pattern.to_string(),
+                received: format!("prependfile::{}::{}::{}", pattern, filename, flags),
+                cause: err.to_string(),
+            });
+            return Command::CNoop(crate::CNoop {
+                text: format!("prependfile::{}::{}::{}", pattern, filename, flags),
+                message: err.to_string(),
+            });
+        }
+    };
+
+    from_insert(pattern, &content, flags, true)
+}
+
+pub(crate) fn from_appendfile(pattern: &str, filename: &str, flags: &str) -> Command {
+    let content = match std::fs::read_to_string(filename) {
+        Ok(content) => content,
+        Err(err) => {
+            append_telemetry(TelemetryEvent::NoopNotification {
+                payload: pattern.to_string(),
+                received: format!("appendfile::{}::{}::{}", pattern, filename, flags),
+                cause: err.to_string(),
+            });
+            return Command::CNoop(crate::CNoop {
+                text: format!("appendfile::{}::{}::{}", pattern, filename, flags),
+                message: err.to_string(),
+            });
+        }
+    };
+
+    from_insert(pattern, &content, flags, false)
+}
+
 impl CommandActions for CInserter {
     fn apply(
         &self,
@@ -225,36 +283,41 @@ impl CommandActions for CInserter {
                 line_status.visible && key_matches && self.inserter.is_match(&line_status.line);
 
             if hit {
-                let inserted = inserted_line_text(
+                let inserted_lines = inserted_line_text(
                     self.inserter.content(),
                     &line_status.line,
                     self.inserter.indent_keep(),
                 );
+                let inserted_text = inserted_lines.join("\n");
 
                 let should_insert = if user_confirmation {
-                    self.user_confirmation(&line_status, &inserted)
+                    self.user_confirmation(&line_status, &inserted_text)
                 } else {
                     true
                 };
 
                 if should_insert && self.inserter.insert_before() {
-                    result.push(LineStatus {
-                        line_number: line_status.line_number,
-                        visible: true,
-                        line: inserted.clone(),
-                        meta: Default::default(),
-                    });
+                    for inserted in &inserted_lines {
+                        result.push(LineStatus {
+                            line_number: line_status.line_number,
+                            visible: true,
+                            line: inserted.clone(),
+                            meta: Default::default(),
+                        });
+                    }
                 }
 
                 result.push(line_status.clone());
 
                 if should_insert && !self.inserter.insert_before() {
-                    result.push(LineStatus {
-                        line_number: line_status.line_number,
-                        visible: true,
-                        line: inserted,
-                        meta: Default::default(),
-                    });
+                    for inserted in &inserted_lines {
+                        result.push(LineStatus {
+                            line_number: line_status.line_number,
+                            visible: true,
+                            line: inserted.clone(),
+                            meta: Default::default(),
+                        });
+                    }
                 }
             } else {
                 result.push(line_status);
@@ -285,6 +348,40 @@ mod tests {
 
     fn apply_cmd(cmd: &CInserter, lines: Vec<LineStatus>) -> Vec<LineStatus> {
         cmd.apply(lines, &HashMap::new())
+    }
+
+    #[test]
+    fn prependfile_constructor_sets_prepend_direction() {
+        let temp_path = std::env::temp_dir().join(format!(
+            "rxedit_prependfile_ctor_{}_test",
+            std::process::id(),
+        ));
+        std::fs::write(&temp_path, "hello\n").unwrap();
+
+        let cmd = from_prependfile("foo", temp_path.to_str().unwrap(), "");
+        match cmd {
+            Command::CInserter(c) => assert!(c.inserter.insert_before()),
+            _ => panic!("expected inserter command"),
+        }
+
+        let _ = std::fs::remove_file(&temp_path);
+    }
+
+    #[test]
+    fn appendfile_constructor_sets_append_direction() {
+        let temp_path = std::env::temp_dir().join(format!(
+            "rxedit_appendfile_ctor_{}_test",
+            std::process::id(),
+        ));
+        std::fs::write(&temp_path, "hello\n").unwrap();
+
+        let cmd = from_appendfile("foo", temp_path.to_str().unwrap(), "");
+        match cmd {
+            Command::CInserter(c) => assert!(!c.inserter.insert_before()),
+            _ => panic!("expected inserter command"),
+        }
+
+        let _ = std::fs::remove_file(&temp_path);
     }
 
     #[test]

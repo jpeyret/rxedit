@@ -1,6 +1,6 @@
 # Commands `prepend` and `append`
 
-These tow commands behave much like a `sed i` and `sed a`, respectively.  
+These two commands behave much like a `sed i` and `sed a`, respectively.  
 i.e. when the condition matches a new line will be inserted before or after the match line.  
 Unlike `sed` however, this command only affects visible lines.
 

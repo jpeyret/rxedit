@@ -7,6 +7,7 @@ use rxedit::user_messages;
 use rxedit::commands::all::get_constant_definition as get_constant_definition_all;
 use rxedit::commands::and::get_constant_definition as get_constant_definition_and;
 use rxedit::commands::appendprepend::get_constant_definition as get_constant_definition_insert;
+use rxedit::commands::appendprepend::get_constant_definition_appendprependfile;
 use rxedit::commands::change::get_constant_definition as get_constant_definition_change;
 use rxedit::commands::declarations::get_constant_definition as get_constant_definition_declarations;
 use rxedit::commands::delete::get_constant_definition as get_constant_definition_delete;
@@ -242,10 +243,19 @@ pub fn print_topic_help(topic: &str, config_path: &str) -> Result<(), String> {
             Ok(())
         }
         "append" | "prepend" => {
-            println!("{}", include_str!("help/append_prepend.md"));
+            println!("{}", include_str!("help/commands/append_prepend.md"));
             print_flag_help(
                 "prepend/append flags",
                 get_constant_definition_insert().flags,
+            );
+            println!("{}", include_str!("help/commands/_modifying.footer.md"));
+            Ok(())
+        }
+        "appendfile" | "prependfile" => {
+            println!("{}", include_str!("help/commands/append_prependfile.md"));
+            print_flag_help(
+                "prependfile/appendfile flags",
+                get_constant_definition_appendprependfile().flags,
             );
             println!("{}", include_str!("help/commands/_modifying.footer.md"));
             Ok(())
