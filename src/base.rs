@@ -188,3 +188,16 @@ pub struct DeclarationsCommandQualifier {
     /// Optional declaration type filter.
     pub where_type: Option<String>,
 }
+
+#[derive(PartialEq, Debug)]
+/// tracks where the output is supposed to go
+pub enum OutputType {
+    /// write visibles only to file
+    VISIBLE,
+    /// self-update via -O flag
+    SELF,
+    /// write buffer to file
+    OUTPUT,
+    /// no output
+    NO,
+}

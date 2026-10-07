@@ -10,12 +10,14 @@
 
 use clap::{ArgAction, CommandFactory, Parser};
 use log::debug;
+use rxedit::base::OutputType;
 use rxedit::common::{
     AppConfig, CommandQualifier, dbg_, get_global_config, set_global_config, take_explain_requests,
     telemetry_events,
 };
 use rxedit::config_utilities;
 use rxedit::constants::{DEBUGGING, commandflags};
+use rxedit::support::conditionals::OutputChecker;
 use rxedit::utilities;
 use rxedit::utilities::vec_lines::digest_lines;
 use rxedit::utilities::vec_lines::vec_lines_to_text;
@@ -210,27 +212,55 @@ fn run(config: Config) -> Result<(), Box<dyn Error>> {
         previous_command_mutated_line_text = command.mutates_line_text();
     }
 
-    if config.in_place_output || config.output_file.is_some() {
-        let output_path = if config.in_place_output {
-            config.file_path.as_str()
-        } else {
-            config
+    let output_path: &str;
+    let mut write_checker: OutputChecker = OutputChecker::CheckAlwaysTrue;
+
+    match config.output_type {
+        OutputType::NO => {
+            output_path = "";
+        }
+        OutputType::SELF => {
+            output_path = config.file_path.as_str();
+        }
+        OutputType::OUTPUT => {
+            output_path = config
                 .output_file
                 .as_deref()
-                .unwrap_or(config.file_path.as_str())
-        };
+                .unwrap_or(config.file_path.as_str());
+        }
+        OutputType::VISIBLE => {
+            write_checker = OutputChecker::CheckVisible;
+            output_path = config
+                .output_file
+                .as_deref()
+                .unwrap_or(config.file_path.as_str());
+        }
+    }
 
+    if config.output_type != OutputType::NO {
+        let mut nothing_to_write: bool = false;
         let output_contents = if lines.is_empty() {
+            nothing_to_write = true;
             String::new()
         } else {
             let mut output = lines
                 .iter()
+                .filter(|line_status| write_checker.check(line_status))
                 .map(|line_status| line_status.line.as_str())
                 .collect::<Vec<_>>()
                 .join("\n");
+
+            if output.is_empty() {
+                nothing_to_write = true;
+            };
+
             output.push('\n');
             output
         };
+
+        if nothing_to_write && config.no_empty_write {
+            return Ok(());
+        }
 
         fs::write(output_path, output_contents)?;
         return Ok(());
@@ -283,8 +313,9 @@ struct Config {
     commands_file: Option<String>,
     commands_file_after: Option<String>,
     output_file: Option<String>,
-    in_place_output: bool,
     dump_json: bool,
+    output_type: OutputType,
+    no_empty_write: bool,
 }
 
 #[derive(Debug, Parser)]
@@ -315,15 +346,34 @@ struct CliArgs {
         help = "append commands from the given file"
     )]
     commands_file_after: Option<String>,
+
     #[arg(
         short = 'o',
         long = "output-file",
         conflicts_with = "in_place_output",
+        conflicts_with = "report_file",
         help = "write buffer to the given output file.  Note that everything gets written, not just the visible lines."
     )]
     output_file: Option<String>,
-    #[arg(short = 'O', long = "in-place-output", action = ArgAction::SetTrue, conflicts_with = "output_file",help="modify file directly")]
+
+    #[arg(
+        short = 'R',
+        long = "report-file",
+        conflicts_with = "in_place_output",
+        conflicts_with = "output_file",
+        help = "write only visibles to file."
+    )]
+    report_file: Option<String>,
+
+    #[arg(
+        short = 'O',
+        long = "in-place-output",
+        action = ArgAction::SetTrue,
+        conflicts_with = "output_file",
+        conflicts_with = "report_file",
+        help="modify file directly")]
     in_place_output: bool,
+
     #[arg(
         short = 's',
         long = "spacer",
@@ -378,6 +428,13 @@ struct CliArgs {
         help = "load config from the given file"
     )]
     config: Option<String>,
+
+    #[arg(
+        long = "no-empty-write",
+        action = ArgAction::SetTrue,
+        help="don't write outputs with -o -O or -R flags if empty")]
+    no_empty_write: bool,
+
     #[arg()]
     commands: Vec<String>,
 }
@@ -498,6 +555,26 @@ impl Config {
                 .unwrap_or(cli_args.line_number)
         };
 
+        let report_visible = arg_present(args, "-R", "--report-file");
+        let target_file = arg_present(args, "-o", "--output-file");
+        let self_update = arg_present(args, "-O", " --in-place-output");
+
+        let mut output_file = cli_args.output_file;
+        let mut output_type = OutputType::NO;
+
+        // handling the different type of output flags -R, -o, -O respectively
+        if report_visible {
+            // -R <target> flag
+            output_type = OutputType::VISIBLE;
+            output_file = cli_args.report_file;
+        } else if target_file {
+            // -o <target>  flag
+            output_type = OutputType::OUTPUT;
+        } else if self_update {
+            // -O write to self flag
+            output_type = OutputType::SELF;
+        };
+
         let global_config = AppConfig {
             file_path: file_path.clone(),
             spacer,
@@ -515,9 +592,10 @@ impl Config {
             file_path,
             commands_file: cli_args.commands_file,
             commands_file_after: cli_args.commands_file_after,
-            output_file: cli_args.output_file,
-            in_place_output: cli_args.in_place_output,
+            output_file,
             dump_json: cli_args.dump_json,
+            output_type,
+            no_empty_write: cli_args.no_empty_write,
         })
     }
 }
