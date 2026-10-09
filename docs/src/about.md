@@ -79,14 +79,12 @@ Options:
   -h, --help [<TOPIC>]                             Print help (optionally for a topic)
   -f, --commands-file <COMMANDS_FILE>              prepend commands from the given file
   -F, --commands-file-after <COMMANDS_FILE_AFTER>  append commands from the given file
-  -o, --output-file <OUTPUT_FILE>                  write buffer to the given output file.  Note that everything gets written, not
-                                                   just the visible lines.
+  -o, --output-file <OUTPUT_FILE>                  write buffer to the given output file.  Note that everything gets written, not just the visible lines.
+  -R, --report-file <REPORT_FILE>                  write only visibles to file.
   -O, --in-place-output                            modify file directly
   -s, --spacer                                     separate blocks of displayed lines
-  -n, --line-number                                show line numbers (those will diverge from the source file change on [`delete`](./commands/delete.md),
-                                                   [`append`](./commands/append.md) or [`prepend`](./commands/prepend.md) use)
-  -N, --suppress-line-number                       don't show line numbers (those will diverge from the source file change on
-                                                   [`delete`](./commands/delete.md), [`append`](./commands/append.md) or [`prepend`](./commands/prepend.md) use)
+  -n, --line-number                                show line numbers (those will diverge from the source file change on [`delete`](./commands/delete.md), [`append`](./commands/append.md) or [`prepend`](./commands/prepend.md) use)
+  -N, --suppress-line-number                       don't show line numbers (those will diverge from the source file change on [`delete`](./commands/delete.md), [`append`](./commands/append.md) or [`prepend`](./commands/prepend.md) use)
   -v, --verbose                                    
       --debug                                      debug messages
       --dump-json                                  print the parsed hashtree JSON and exit
@@ -95,6 +93,7 @@ Options:
       --gen-config                                 generate user config file if it does not exist
   -c, --config <FILE>                              load config from the given file
 ```
+      --no-empty-write                             don't write outputs with -o -O or -R flags if empty
 
 Common workflow:
   1. Show lines      (all, more)

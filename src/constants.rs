@@ -68,18 +68,6 @@ pub mod command_prefix {
     pub const AND1: &str = "n";
     /// Short command: output.
     pub const OUTPUT1: &str = "o";
-    /// Short command: delete.
-    pub const DELETE1: &str = "del";
-    /// Short command: invert.
-    pub const INVERT1: &str = "inv";
-    /// Short command: prepend.
-    pub const PREPEND1: &str = "pre";
-    /// Short command: append.
-    pub const APPEND1: &str = "app";
-    /// Short command: prepend file.
-    pub const PREPENDFILE1: &str = "pref";
-    /// Short command: append file.
-    pub const APPENDFILE1: &str = "appf";
 }
 
 /// Tree-sitter field names used by grammar helpers.

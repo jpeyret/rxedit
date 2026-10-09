@@ -28,6 +28,8 @@ Deletes visible lines matching pattern.
 |set key               | sk=([a-z]+)(?:\.\|/\|$) |   ::sk=importan|/  set key to a value that can be used with wk=<key>. in later commands|
 |where_key             | wk=([a-z]+)(?:\.\|/\|$) |   ::wk=mykey/  |   puts an extra criteria to other commands|
 |where_linenum         | wl=([-0-9A-Ca-chtHT,.]+)| ::wl=..5,8,-1/ | limit line number range|
+
+
 ### Notes about commands that modify the text
 
 - Nothing gets saved until you use the `-O` modify in place flag or the `-o <some path>` output flag.

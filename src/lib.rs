@@ -460,13 +460,13 @@ pub fn make_command(arg: &str) -> Command {
         [command_prefix::LESS, arg0] | [command_prefix::LESS1, arg0] => {
             commands::search::from_search(CommandVariant::CLess, arg0, "", arg)
         }
-        [command_prefix::DELETE, arg0, flag] | [command_prefix::DELETE1, arg0, flag] => {
+        [command_prefix::DELETE, arg0, flag] => {
             commands::search::from_search(CommandVariant::CDelete, arg0, flag, arg)
         }
-        [command_prefix::DELETE, arg0] | [command_prefix::DELETE1, arg0] => {
+        [command_prefix::DELETE, arg0] => {
             commands::search::from_search(CommandVariant::CDelete, arg0, "", arg)
         }
-        [command_prefix::DELETE] | [command_prefix::DELETE1] => commands::search::from_search(
+        [command_prefix::DELETE] => commands::search::from_search(
             CommandVariant::CDelete,
             DEFAULT_ON_EMPTY_PATTERN,
             "",
@@ -528,51 +528,36 @@ pub fn make_command(arg: &str) -> Command {
         [command_prefix::PREPENDFILE, pattern, content, flags] => {
             commands::appendprepend::from_prependfile(pattern, content, flags)
         }
-        [command_prefix::PREPENDFILE1, pattern, content, flags] => {
-            commands::appendprepend::from_prependfile(pattern, content, flags)
-        }
         [command_prefix::PREPENDFILE, pattern, content] => {
             commands::appendprepend::from_prependfile(pattern, content, "")
         }
-        [command_prefix::PREPENDFILE1, pattern, content] => {
-            commands::appendprepend::from_prependfile(pattern, content, "")
+        [command_prefix::PREPENDFILE, content] => {
+            // without a pattern, the content is the file path
+            commands::appendprepend::from_prependfile(DEFAULT_ON_EMPTY_PATTERN, content, "")
         }
-        [prefix, pattern, content, flags]
-            if matches!(*prefix, command_prefix::PREPEND | command_prefix::PREPEND1) =>
-        {
+        [prefix, pattern, content, flags] if matches!(*prefix, command_prefix::PREPEND) => {
             commands::appendprepend::from_prepend(pattern, content, flags)
         }
-        [prefix, pattern, content]
-            if matches!(*prefix, command_prefix::PREPEND | command_prefix::PREPEND1) =>
-        {
+        [prefix, pattern, content] if matches!(*prefix, command_prefix::PREPEND) => {
             commands::appendprepend::from_prepend(pattern, content, "")
         }
         [command_prefix::APPENDFILE, pattern, content, flags] => {
             commands::appendprepend::from_appendfile(pattern, content, flags)
         }
-        [command_prefix::APPENDFILE1, pattern, content, flags] => {
-            commands::appendprepend::from_appendfile(pattern, content, flags)
-        }
         [command_prefix::APPENDFILE, pattern, content] => {
             commands::appendprepend::from_appendfile(pattern, content, "")
         }
-        [command_prefix::APPENDFILE1, pattern, content] => {
-            commands::appendprepend::from_appendfile(pattern, content, "")
+        [command_prefix::APPENDFILE, content] => {
+            // without a pattern, the content is the file path
+            commands::appendprepend::from_appendfile(DEFAULT_ON_EMPTY_PATTERN, content, "")
         }
-        [prefix, pattern, content, flags]
-            if matches!(*prefix, command_prefix::APPEND | command_prefix::APPEND1) =>
-        {
+        [prefix, pattern, content, flags] if matches!(*prefix, command_prefix::APPEND) => {
             commands::appendprepend::from_append(pattern, content, flags)
         }
-        [prefix, pattern, content]
-            if matches!(*prefix, command_prefix::APPEND | command_prefix::APPEND1) =>
-        {
+        [prefix, pattern, content] if matches!(*prefix, command_prefix::APPEND) => {
             commands::appendprepend::from_append(pattern, content, "")
         }
-        [command_prefix::INVERT]
-        | [command_prefix::INVERT1]
-        | [command_prefix::INVERT, ""]
-        | [command_prefix::INVERT1, ""] => Command::CInvert(CInvert),
+        [command_prefix::INVERT] | [command_prefix::INVERT, ""] => Command::CInvert(CInvert),
         [command_prefix::EXPLAIN] | [command_prefix::EXPLAIN, _] => Command::CExplain(CExplain),
 
         _ => {
@@ -649,11 +634,7 @@ fn command_file_arg_policy(arg: &str) -> FileArgPolicy {
 
     if matches!(
         first,
-        command_prefix::MACROS
-            | command_prefix::PREPENDFILE
-            | command_prefix::PREPENDFILE1
-            | command_prefix::APPENDFILE
-            | command_prefix::APPENDFILE1
+        command_prefix::MACROS | command_prefix::PREPENDFILE | command_prefix::APPENDFILE
     ) {
         FileArgPolicy::Yes
     } else {
@@ -740,10 +721,7 @@ fn expand_macros(args: &[String]) -> Vec<String> {
                         }
                     }
                 }
-                command_prefix::PREPENDFILE
-                | command_prefix::PREPENDFILE1
-                | command_prefix::APPENDFILE
-                | command_prefix::APPENDFILE1 => {
+                command_prefix::PREPENDFILE | command_prefix::APPENDFILE => {
                     res.push(expand_file_arg_command(current, path));
                 }
                 _ => {
@@ -1014,15 +992,6 @@ mod tests {
         use crate::make_command;
 
         let cmd = make_command("prepend::foo::bar");
-        assert!(matches!(cmd, Command::CInserter(_)));
-    }
-
-    #[test]
-    fn make_command_append_short_dispatches_to_inserter() {
-        use crate::Command;
-        use crate::make_command;
-
-        let cmd = make_command("app::foo::bar");
         assert!(matches!(cmd, Command::CInserter(_)));
     }
 

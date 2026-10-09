@@ -67,7 +67,7 @@ class Calculator:
         self.name = name
         self.history = []
 
-    def add(self, a: int, b: int) -> int:
+    def add(self, a: int, b: int) -> int:  # inline comment
         """Add two numbers  ."""
         result_add = a + b
         self.history.append(f"{a} + {b} = {result_add}")

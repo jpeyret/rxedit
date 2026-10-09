@@ -9,7 +9,7 @@
 # Actual transformations done:
 # rxedit:        `<command>` by itself in the rxedit --help outputs gets transformed to a markdown [<command>](<prefix>/<command>.md)
 # rxedit:         leading `rxedit ...` examples get prefixed by <br><br> linefeeds to get them to stand out more
-# postformat.py:  wraps basic --help tabular output in a markdown table 
+# postformat.py:  wraps basic --help tabular output in a markdown table
 # postformat.py:  figures out how to resolve the path to the markdown files in links.  command -> .. or . -> commands/ or . sibling?
 
 
@@ -37,6 +37,7 @@ dn_docs=$dn_root/docs
 dn_dogfooding=$dn_docs/dogfooding
 dn_mdbook=$dn_docs/src
 dn_worktemp=$dn_dogfooding/temp
+dn_assets=$dn_dogfooding/assets
 dn_macros=$dn_dogfooding/macros
 
 pyformat=$dn_root/docs/dogfooding/postformat.py
@@ -99,6 +100,17 @@ do
         continue
     fi
 
+    if [[ "$topic" == "append_prependfile" ]]; then
+        helptopic=''
+        topic_array+=( appendfile )
+        di_topic[appendfile]="commands/appendfile.md"
+        topic_array+=( prependfile )
+        di_topic[prependfile]="commands/prependfile.md"
+        continue
+    fi
+
+
+
     #are we matching the filter?
     if [[ ! "$topic" =~ $re_todo_filter ]]; then
         if [[ -n "$verbose" ]]; then
@@ -152,7 +164,7 @@ do
     fi
 
 
-    printf "topic \`%s\` \n" "$topic" 
+    printf "topic \`%s\` \n" "$topic"
 
     # call rxedit to show the topic help
     pa_help="$dn_worktemp/$topic.out"
@@ -163,7 +175,7 @@ do
     else
         >&2 printf "  ❌ error running rxedit --help %s   \n\n" "$topic"
         exit 1
-    fi  
+    fi
     echo
 
 done
@@ -241,7 +253,7 @@ generate_topic(){  # generate given topic
     fi
 
     dn_out=$dn_mdbook/$dn_o
-    mkdir -p $dn_out 
+    mkdir -p $dn_out
 
     # README goes up to the root
     if [[ "$topic" == "README" ]]; then
@@ -253,7 +265,7 @@ generate_topic(){  # generate given topic
     pa_out="$dn_worktemp/$topic.md"
 
     if [[ -n "$verbose" ]]; then
-        echo 🔬 rxedit $pa_help $comm_show "$comm_less1" "$comm_less2" $comm_change $comm_postchange -o $pa_out 
+        echo 🔬 rxedit $pa_help $comm_show "$comm_less1" "$comm_less2" $comm_change $comm_postchange -o $pa_out
     fi
 
     # one of the easier to troubleshoot this is to add an explain at the end, and `2>&1 | tee <somefile.debug>` return without further processing
@@ -264,20 +276,27 @@ generate_topic(){  # generate given topic
             printf "\n✅\n"
         fi
     else
-        >&2 echo " ❌ error for rxedit $topic " 
+        >&2 echo " ❌ error for rxedit $topic "
         return 1
     fi
 
+
+    # prepend the badges at README's top
+    if [[ "$topic" == "README" ]]; then
+        rxedit $pa_out lines::1 prependfile $dn_assets/header.README.badges.md -O
+    fi
+
+
     pa_mdbook=$dn_out/$topic.md
 
-    # pyformat.py will wrap ------ stuff in markdown table 
+    # pyformat.py will wrap ------ stuff in markdown table
     # it also computes relative links to other pages.
     if python3 $pyformat $pa_out $pa_mdbook; then
         if [[ -n "$verbose" ]]; then
             printf '  ✅ pyformat %-40s 👉 %s \n' "\$pa_mdbook" "$pa_mdbook"
         fi
     else
-        printf "\n❌\n py $pyformat $pa_out $pa_mdbook" 
+        printf "\n❌\n py $pyformat $pa_out $pa_mdbook"
     fi
 
 }

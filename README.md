@@ -1,3 +1,8 @@
+[![CI](https://github.com/jpeyret/rxedit/actions/workflows/rust.yml/badge.svg)](https://github.com/jpeyret/rxedit/actions/workflows/rust.yml)
+[![Crates.io](https://img.shields.io/crates/v/rxedit.svg)](https://crates.io/crates/rxedit)
+[![Docs.rs](https://docs.rs/rxedit/badge.svg)](https://docs.rs/rxedit)
+[![License](https://img.shields.io/crates/l/rxedit.svg)](https://github.com/jpeyret/rxedit/blob/main/LICENSE)
+
 rxedit is a folding "batch editor" for source code, inspired by IBM's XEDIT editor, 
 optimized for source code discovery and with optional editing capabilities.
 
@@ -79,14 +84,12 @@ Options:
   -h, --help [<TOPIC>]                             Print help (optionally for a topic)
   -f, --commands-file <COMMANDS_FILE>              prepend commands from the given file
   -F, --commands-file-after <COMMANDS_FILE_AFTER>  append commands from the given file
-  -o, --output-file <OUTPUT_FILE>                  write buffer to the given output file.  Note that everything gets written, not
-                                                   just the visible lines.
+  -o, --output-file <OUTPUT_FILE>                  write buffer to the given output file.  Note that everything gets written, not just the visible lines.
+  -R, --report-file <REPORT_FILE>                  write only visibles to file.
   -O, --in-place-output                            modify file directly
   -s, --spacer                                     separate blocks of displayed lines
-  -n, --line-number                                show line numbers (those will diverge from the source file change on `delete`,
-                                                   `append` or `prepend` use)
-  -N, --suppress-line-number                       don't show line numbers (those will diverge from the source file change on
-                                                   `delete`, `append` or `prepend` use)
+  -n, --line-number                                show line numbers (those will diverge from the source file change on `delete`, `append` or `prepend` use)
+  -N, --suppress-line-number                       don't show line numbers (those will diverge from the source file change on `delete`, `append` or `prepend` use)
   -v, --verbose                                    
       --debug                                      debug messages
       --dump-json                                  print the parsed hashtree JSON and exit
@@ -95,6 +98,7 @@ Options:
       --gen-config                                 generate user config file if it does not exist
   -c, --config <FILE>                              load config from the given file
 ```
+      --no-empty-write                             don't write outputs with -o -O or -R flags if empty
 
 Common workflow:
   1. Show lines      (all, more)

@@ -77,6 +77,8 @@ Since that "comment out" is complicated to remember, you can save it in a [`macr
 |no_use_grep_shortcodes| G                    | ::G        | does not expand grep shortcodes|
 |where_key             | wk=([a-z]+)(?:\.\|/\||)  ::wk=myke|/  puts an extra criteria to other commands|
 |user_confirm          | u                    | ::u        | user confirmation|
+
+
 ### Notes about commands that modify the text
 
 - Nothing gets saved until you use the `-O` modify in place flag or the `-o <some path>` output flag.

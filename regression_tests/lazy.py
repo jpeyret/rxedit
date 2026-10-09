@@ -695,6 +695,9 @@ class Test_PrependFileIndent(Best_):
 class Test_PrependFile(Best_):
     "prepend wo indent"
 
+class Test_PrependFileNoPattern(Best_):
+    "prepend wo indent"
+
 class Test_AppendFile(Best_):
     "append wo indent"
 

@@ -408,6 +408,15 @@ Test_PrependFile:
     - prependfile::init
     - $diroisamples/header_for_init_functions.py
 
+Test_PrependFileNoPattern:
+  file_path: $diroisamples/pysample.py
+  commands:
+    - d::__init__::
+    - prependfile
+    - $diroisamples/header_for_init_functions.py
+
+
+
 Test_AppendFile:
   file_path: $diroisamples/pysample.py
   commands:
