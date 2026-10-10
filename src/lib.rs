@@ -644,7 +644,7 @@ fn command_file_arg_policy(arg: &str) -> FileArgPolicy {
 
 fn fatal_bad_file_arg(command_name: &str, path: &str) -> ! {
     eprintln!(
-        "{} {} is the problem due to a missing file.",
+        "{} : Exiting because file `{}` was not found.",
         command_name, path
     );
     std::process::exit(1);
