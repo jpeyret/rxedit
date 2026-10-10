@@ -1,0 +1,2 @@
+# put all leading space in match group1, rest in group2.  then prefix group2 with a `#`
+'c::([\s]*)([^\s].*$)::$1#$2'

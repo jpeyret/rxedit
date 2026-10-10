@@ -20,7 +20,7 @@ where macro files come in, which allow you to save those commands for re-use and
 
 So you can run this instead:
 
-`rxedit pysample.py macro::./rxedit/showpychatty.rxi`
+`rxedit pysample.py macro ./showpychatty.rxi`
 
 giving
 
@@ -31,28 +31,30 @@ giving
 
 then hide line 37...
 
-`rxedit pysample.py macro::./rxedit/showpychatty.rxi  less::::wl=37`
+` rxedit pysample.py macro ./showpychatty.rxi less::::wl=37`
 
 ```
 000035         print(f"\n{self.name}'s History:")
 ```
 
-and call another macro file to comment visible lines out.
+and call another Python-specific macro file to comment visible lines out
 
-`rxedit pysample.py macro::./rxedit/showpychatty.rxi  less::::wl=37 macro::./rxedit/pycommentout.rxi`
+`rxedit pysample.py macro ./showpychatty.rxi less::::wl=37 macro ./pycommentout.rxi`
 
 ```
 000035         #print(f"\n{self.name}'s History:")
 ```
 
+
+
 ### Sample macro file contents
 
 Comments start with `#` and empty lines are ignored.
 
-#### file `rxedit/showpychatty.rxi`
+#### file `rxedit/regression_tests/samples/showpychatty.rxi`
 
 ```
-#things that we consider "noisy"
+#things that considered "noisy"
 m::^ *(print|debug|pp|ppp|rin|rindebug)\(
 more::log\.(info|debug)
 more::log\(..level="w
@@ -61,7 +63,7 @@ less::^ *#
 ```
 
 
-#### file ` rxedit/pycommentout.rxi`
+#### file ` rxedit/regression_tests/samples/pycommentout.rxi`
 
 Note that rxedit's `Change` is just a passthrough to the standard Rust Regex crate which supports the use of
 groups.

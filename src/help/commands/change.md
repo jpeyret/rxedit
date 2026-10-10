@@ -63,4 +63,4 @@ Note how "show_history" was not affected, because `::wk=tocomment` filtered it o
 Since that "comment out" is complicated to remember, you can save it in a `macro` file instead.
 (Be mindful about setting `sk=tocomment` if you keep `wk=tocomment` in the macro.)
 
-`rxedit -n pysample.py m::print::osk=tocomment less::::wl=35 macro::~/mycommentoutforrust.rxi`
+`rxedit -n pysample.py m::print::osk=tocomment less::::wl=35 macro pycommentout.rxi`

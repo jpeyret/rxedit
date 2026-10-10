@@ -1,4 +1,4 @@
-#things that we consider "noisy"
+#things considered "noisy"
 m::^ *(print|debug|pp|ppp|rin|rindebug|debuglog)\(::sk=chatty
 less::# *debugging::wk=chatty
 more::log\.info

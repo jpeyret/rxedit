@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2024-10-09
+
+-     added commands `appendfile` / `prependfile which  include a file's contents at the insertion point
+
+-     added command line flag -R, --report-file:  write only visibles to file.
+
+-     added command line flag --no-empty-write:  don't write outputs with -o, -O or -R flags if empty
+
+-     enabling Git Action CI checks via rust.yml
+
+-     fixed `declarations` not finding Python declarations with an inline comment
+
+-     generate_mdbook.sh adds the GitHub badges to the top of README.md, via `prependfile`.
+
+-     removed some of the shorter command abbreviations like 'del' for `delete`
+
 ## [0.1.2] - 2024-09-25
 
 ### Changed
