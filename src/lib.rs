@@ -608,7 +608,9 @@ fn split_command_fields(arg: &str) -> Vec<String> {
         current.push(ch);
         index += ch.len_utf8();
     }
-    segments.push(current);
+    if ! current.is_empty(){
+        segments.push(current);
+    }
     segments
 }
 
@@ -833,7 +835,7 @@ mod tests {
 
     #[test]
     fn split_command_fields_with_trailing_separator() {
-        assert_split("m::", &["m", ""]);
+        assert_split("m::", &["m"]);
     }
 
     #[test]
@@ -843,7 +845,7 @@ mod tests {
 
     #[test]
     fn split_command_fields_empty_input() {
-        assert_split("", &[""]);
+        assert_split("", &[]);
     }
 
     #[test]
