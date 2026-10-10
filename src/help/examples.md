@@ -32,7 +32,7 @@ Commands use:
     `rxedit formatters.rs 'm::dbg!' 'change::([\s]*)([^\s].*$)::$1//$2'`
 
   Uses a `macro::` file to show user-determined indicators of "chattiness" in Python
-    `rxedit pysample.py macro::./showpychatty.rxi`
+    `rxedit pysample.py macro ./showpychatty.rxi`
 
     showpychatty.rxi contents:
 
@@ -44,7 +44,7 @@ Commands use:
     ````
 
   Same as above, after user has hidden lines 32 and 35 that they want to keep after all, delete and overwrite the file
-    `rxedit pysample.py macro::./showpychatty.rxi less::::ln=32,35 delete -O`
+    `rxedit pysample.py macro ./showpychatty.rxi less::::ln=32,35 delete -O`
 
   Extract all the active `log` calls to a report file.  Note the use of the `invert` before `delete`:  first we
   identify all the lines we want to extract, then we invert the visibility in order to delete all those we don't want.

@@ -319,7 +319,7 @@ struct Config {
 }
 
 #[derive(Debug, Parser)]
-#[command(disable_help_flag = true, about = include_str!("help/about.md"), after_help = include_str!("help/examples.help"))]
+#[command(disable_help_flag = true, about = include_str!("help/about.md"), after_help = include_str!("help/examples.md"))]
 /// Command-line arguments accepted by the application.
 struct CliArgs {
     #[arg(required_unless_present_any = ["help_topic", "gen_config"])]
