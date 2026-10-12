@@ -629,6 +629,8 @@ mod tests {
     use crate::{Command, commands::declarations::from_declarations};
     use std::collections::HashMap;
 
+    use crate::support::for_testing::js_plugin_tests_enabled;
+
     fn declaration(name: &str, signature_line: usize, parents: Vec<usize>) -> Parsed {
         Parsed::Declarations(ParsedDeclarationsData {
             name: name.to_string(),
@@ -659,6 +661,10 @@ mod tests {
 
     #[test]
     fn showowner_for_js_uses_parents_to_include_class_owner() {
+        if !js_plugin_tests_enabled() {
+            return;
+        }
+
         reset_global_state_for_tests();
         set_global_config(AppConfig {
             file_path: "sample.js".to_string(),

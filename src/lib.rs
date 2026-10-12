@@ -608,7 +608,7 @@ fn split_command_fields(arg: &str) -> Vec<String> {
         current.push(ch);
         index += ch.len_utf8();
     }
-    if ! current.is_empty(){
+    if !current.is_empty() {
         segments.push(current);
     }
     segments

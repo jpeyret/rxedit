@@ -5,9 +5,10 @@
 
 use std::collections::HashMap;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use crate::config_utilities;
+pub use crate::support::languages::{plugin_library_filename, resolve_plugin_library_path};
 
 use abi_stable::StableAbi;
 use abi_stable::std_types::{RString, RVec};
@@ -98,31 +99,6 @@ fn resolve_extension_language_id(extension: &str) -> Option<String> {
         "sh" | "bash" | "zsh" => Some("zsh".to_string()),
         _ => None,
     }
-}
-
-fn plugin_library_filename(language_id: &str) -> String {
-    let ext = if cfg!(target_os = "macos") {
-        "dylib"
-    } else if cfg!(windows) {
-        "dll"
-    } else {
-        "so"
-    };
-
-    format!("librxedit_language_{language_id}.{ext}")
-}
-
-fn resolve_plugin_library_path(language_id: &str) -> Option<PathBuf> {
-    let candidate_name = plugin_library_filename(language_id);
-
-    for directory in config_utilities::plugin_library_search_paths() {
-        let candidate = directory.join(&candidate_name);
-        if candidate.is_file() {
-            return Some(candidate);
-        }
-    }
-
-    None
 }
 
 fn normalize_hashtree_to_zero_based(_hashtree: &mut HashMap<usize, Parsed>) {
@@ -392,8 +368,14 @@ pub fn parse_source_file_to_hashtree(path: impl AsRef<Path>) -> HashMap<usize, P
 mod tests {
     use super::*;
 
+    use crate::support::for_testing::{js_plugin_tests_enabled, zsh_plugin_tests_enabled};
+
     #[test]
     fn parse_content_to_hashtree_supports_shell_extension_via_language_plugin() {
+        if !zsh_plugin_tests_enabled() {
+            return;
+        }
+
         let source = b"function greet() {\n  echo hi\n}\n";
         let hashtree = parse_content_to_hashtree(source, "sh");
         assert!(!hashtree.is_empty());
@@ -427,25 +409,19 @@ sh = "zsh"
 
     #[test]
     fn plugin_discovery_marks_shell_extension_as_supported() {
+        if !zsh_plugin_tests_enabled() {
+            return;
+        }
+
         assert!(supports_extension_for_parsing("sh"));
     }
 
     #[test]
-    fn plugin_library_filename_uses_host_os_extension() {
-        let name = plugin_library_filename("zsh");
-
-        #[cfg(target_os = "macos")]
-        assert_eq!(name, "librxedit_language_zsh.dylib");
-
-        #[cfg(windows)]
-        assert_eq!(name, "librxedit_language_zsh.dll");
-
-        #[cfg(all(not(target_os = "macos"), not(windows)))]
-        assert_eq!(name, "librxedit_language_zsh.so");
-    }
-
-    #[test]
     fn parse_content_to_hashtree_json_supports_shell_extension_via_language_plugin() {
+        if !zsh_plugin_tests_enabled() {
+            return;
+        }
+
         let source = b"function greet() {\n  echo hi\n}\n";
         let json = parse_content_to_hashtree_json(source, "sh");
         assert!(json.contains("\"0\":"));
@@ -456,6 +432,10 @@ sh = "zsh"
 
     #[test]
     fn parse_content_to_hashtree_json_keeps_zero_based_lines_for_third_line_function() {
+        if !zsh_plugin_tests_enabled() {
+            return;
+        }
+
         let source = b"\n\nllhelp(){\n  echo hi\n}\n";
         let json = parse_content_to_hashtree_json(source, "sh");
         assert!(json.contains("\"start_line\": 2"));
@@ -466,6 +446,10 @@ sh = "zsh"
 
     #[test]
     fn parse_content_to_hashtree_json_supports_js_imports_and_declarations_via_language_plugin() {
+        if !js_plugin_tests_enabled() {
+            return;
+        }
+
         let source = b"import path from \"path\";\nconst fs = require(\"fs\");\n\nclass Greeter {\n    constructor(prefix) {\n        this.prefix = prefix;\n    }\n\n    greet(name) {\n        return `${this.prefix} ${name}`;\n    }\n\n    static version() {\n        return \"1.0\";\n    }\n}\n\nfunction add(a, b) {\n    return a + b;\n}\n\nfunction formatFileName(name) {\n    return path.join(\"tmp\", name);\n}\n";
 
         if !supports_extension_for_parsing("js") {
