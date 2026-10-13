@@ -81,7 +81,7 @@ fi
 typeset -A di_topic
 di_topic=()
 topic_array=( user_messages shortcodes sample README)
-for pa_file in $(find $dn_src_help -name "*.md" | egrep -v "footer|header|caveat")
+for pa_file in $(find $dn_src_help -name "*.md" | egrep -v "footer|header|caveat|examples")
 do
 
     pa_src_md=${pa_file#$dn_src_help/}
