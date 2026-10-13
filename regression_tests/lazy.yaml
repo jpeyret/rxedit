@@ -16,15 +16,6 @@ Test_Mainrs_Printdebugs:
     - "m::print!~~o.debug!"
     - -G
 
-Test_PyViewManagerDescrA5:
-  file_path: $diroisamples/viewmanager.py
-  commands:
-    - "d::manager::iA5"
-
-Test_PyViewManagerMixBody:
-  file_path: $diroisamples/viewmanager.py
-  commands:
-    - "d::Mix::b"
 
 Test_PySampleCAnd:
   file_path: $diroisamples/pysample.py

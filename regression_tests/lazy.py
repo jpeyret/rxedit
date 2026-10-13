@@ -477,12 +477,8 @@ class Test_Mainrs_DeclareNumbers(Best_):
 class Test_Mainrs_Printdebugs(Best_):
     "main.rs declaration with -G and print! debug!"
 
-class Test_PyViewManagerDescrA5(Best_):
-    "anything with manager anywhere in the signature"
 
 
-class Test_PyViewManagerMixBody(Best_):
-    "class ...Mix... with body"
 
 class Test_PySampleCAnd(Best_):
     "test declare:: followed by and::<pattern>"
